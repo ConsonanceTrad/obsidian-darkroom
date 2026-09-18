@@ -52,10 +52,7 @@ A Dark Room 的代码与素材并非本插件作者原创 —— 其版权与许
 | --- | --- |
 | `audio/**`（86 个 flac 音效与配乐） | 本移植为**静音**分发。`script/audioLibrary.js`（常量表）保留，因为事件模块以 `AudioLibrary.XXX` 引用它；真正的播放引擎 `script/audio.js` 被排除。 |
 | `img/**`（App Store / Google Play 下载徽章、五种浏览器图标、品牌 logo） | **游戏运行时不使用任何位图。** 上游仅有的引用都位于 `index.html` 的 `<head>` 元数据（`og:image`、`image_src`），以及只给 README 和 `browserWarning.html` 用。不引入同时也避免了 Apple / Google 徽章与各浏览器 logo 的商标使用问题。 |
-| `lang/` 下除 `zh_cn` 外的全部语种 | 本移植仅提供简体中文。`lang/langs.js` 未引入也不会出问题 —— `engine.js` 以 `typeof langs != 'undefined'` 守卫，缺失时只是不渲染语言切换菜单。 |
 | `lang/adarkroom.pot`、`tools/po2js.py`、`browserWarning.html`、`mobileWarning.html`、`doc/**`、`favicon.ico`、`script/dropbox.js`、`script/localization.js`、`lib/icu.js`、上游开发文件 | 与运行无关，详见 `src/game/upstream.meta.json` 的 `excludedReasons`。 |
-
-完整清单与逐条理由见 `src/game/upstream.meta.json`。
 
 ---
 
