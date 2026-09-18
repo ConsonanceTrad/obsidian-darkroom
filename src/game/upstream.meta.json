@@ -229,6 +229,12 @@
 			"effect": "在拼接作用域内以局部 localStorage 变量遮蔽全局，转发到插件持久层，使存档落在 vault 内（随同步）而非 Electron 的浏览器存储。"
 		},
 		{
+			"id": "drop-inline-button-width",
+			"target": "script/Button.js",
+			"reason": "上游让调用方用 options.width 指定按钮宽度并写成**内联**样式：room.js / outside.js / path.js 传 '80px'、ship.js 传 '100px'、fabricator.js 传 '150px' —— 那是按英文短文案定的。中文按钮文字更宽，宽度需要由样式表统一决定（上游 css/main.css 本来就把 div.button 定为 100px）；只要这条内联还在，styles.css 就只能靠 !important 才能覆盖它。",
+			"effect": "构建期删除 Button.js 里的 `if(options.width) { el.css('width', options.width); }`。宽度于是完全由样式表决定：div.button 基线 100px，#outsidePanel 115px、.eventPanel 122px —— 与删除前用 !important 覆盖的结果一致。Button.js 的 options.width 参数自此不再产生副作用（5 个调用点保持不变，无需改动）；events.js 里给**事件面板自身**设宽度的同名写法不在此列，予以保留。"
+		},
+		{
 			"id": "scope-css",
 			"target": "css/**, lang/zh_cn/main.css（一次性转换，结果已固化为根目录 styles.css）",
 			"reason": "上游样式大量使用 id 选择器（#room、#outside、#buildings、#world 等）与通用规则，直接注入会污染 Obsidian 界面，反之亦然。",

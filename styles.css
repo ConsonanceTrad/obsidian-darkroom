@@ -1026,16 +1026,17 @@
 	}
 }
 
-/* 这两条**保留** !important（本轮已查证）：`#spacePanel` 在 space.js:32-34 里同时
-   addClass('location') 并 appendTo('#outerSlider')，于是被两条上游规则命中 ——
+/* 这两条曾靠 !important 压过两条上游规则 —— `#spacePanel` 在 space.js:32-34 里同时
+   addClass('location') 并 appendTo('#outerSlider')，于是被它们命中：
      · `#darkroom-root div.location`（(1,1,1)：float:left、position:relative）
      · `#darkroom-root div#outerSlider > div`（(2,0,2)：同上）
-   本条选择器只有 (1,1,0)，低于两者。要撤掉 !important 就得写成
-   `#darkroom-root div#outerSlider > div#spacePanel`（(3,0,2)）这种与 DOM 结构强耦合的形式；
-   一旦失配，太空过场会整屏错位 —— 收益不抵风险，故维持原样。 */
-#darkroom-root #spacePanel {
-	float: none !important;
-	position: absolute !important;
+   现在改为把选择器写成 `#darkroom-root div#outerSlider > div#spacePanel`（(3,0,2)），
+   特异性直接胜过两者（id 数 3 > 2 > 1），!important 于是不再需要。
+   代价是本条与 space.js:32 的 `appendTo('#outerSlider')` 绑在一起：上游若改为挂到别处，
+   这里必须同步改，否则太空过场会整屏错位。 */
+#darkroom-root div#outerSlider > div#spacePanel {
+	float: none;
+	position: absolute;
 	top: -700px;
 	left: 0px;
 }
@@ -1187,15 +1188,18 @@
 }
 
 /* ============ upstream lang/zh_cn/main.css ============ */
-/* 这三条**保留** !important（本轮已查证）：Button.js:44 会执行 `el.css('width', options.width)`，
-   而上下游多处构造按钮时确实传了内联宽度 —— room.js / outside.js / path.js 传 '80px'、
-   ship.js 传 '100px'、fabricator.js 传 '150px'。中文按钮文字更宽，需要把宽度统一提到
-   100 / 115 / 122px；内联声明优先于普通声明，只有 !important 压得住它们，故维持原样。 */
-#darkroom-root .button {width: 100px !important;}
+/* 按钮宽度全部由样式表决定，不再需要 !important。
+   上游把 div.button 的基线宽度定为 100px（见上面 `#darkroom-root div.button`），
+   而 Button.js:43-45 会执行 `el.css('width', options.width)` 写一条**内联**宽度把它顶掉 ——
+   room.js / outside.js / path.js 传 '80px'、ship.js 传 '100px'、fabricator.js 传 '150px'，
+   那套值是按英文短文案定的。中文按钮文字更宽，宽度该由样式表说了算，于是构建期直接把
+   那句内联赋值删掉（见 src/game/upstream.meta.json 的 drop-inline-button-width）。
+   内联既已不存在，下面两条就只是普通声明；选择器相应改用 `div.button` 把特异性提到
+   (2,0,1) / (1,2,1)，稳稳压过基线的 (1,1,1)，不必再借助 !important。
+   基线那条 100px 无需在此重复 —— 删掉内联后它自然生效。 */
+#darkroom-root #outsidePanel div.button {width: 115px;}
 
-#darkroom-root #outsidePanel .button {width: 115px !important;}
-
-#darkroom-root .eventPanel .button {width: 122px !important;}
+#darkroom-root .eventPanel div.button {width: 122px;}
 
 /* ============ upstream css/dark.css（夜间模式，由根容器上的 darkenLights 类控制）============ */
 #darkroom-root.darkenLights {
@@ -1442,18 +1446,17 @@
  * (0,1,0) 压不住。这里同时**提高特异性**（.view-content.darkroom-container = 0,2,0）
  * 并加 !important —— 双保险，因为这条规则一旦失效，用户看到的就是横纵两条滚动条。
  *
- * 这三条 !important **保留**（本轮把审核告警逐条过了一遍后的决定）：对手是 Obsidian
- * 自身注入的样式，它的特异性、是否带 !important 都不在本仓库里，既无法静态确证也无从
- * 本地复现；而失配的代价是用户眼前立刻多出两条滚动条 —— 撤掉它换来的 3 条 lint 告警
- * 明显不抵这个风险。 */
+ * 这条 !important **保留**：对手是 Obsidian 自身注入的样式，它的特异性、是否带
+ * !important 都不在本仓库里，既无法静态确证也无从本地复现；而失配的代价是用户眼前
+ * 立刻多出两条滚动条 —— 撤掉它换来的 1 条 lint 告警明显不抵这个风险。
+ * （原先并列的 overflow-x / overflow-y 两条**已删**：`overflow: hidden` 简写本就同时设
+ * 两轴，它们是纯粹的冗余声明，删掉不改变任何计算值。） */
 .view-content.darkroom-container {
   height: 100%;
   /* 不出滚动条：视图比游戏所需宽度窄时，直接截掉放不下的部分。
    * 游戏本体是 920px 一体的定宽设计（#wrapper 内容 700 + 左侧通知栏 220），
    * 收窄会破坏内部布局，故相比滚动条选择截断。 */
   overflow: hidden !important;
-  overflow-x: hidden !important;
-  overflow-y: hidden !important;
   color: #000000;
 }
 
@@ -1773,11 +1776,13 @@
  * 上游是 position:absolute + top:20px + height:700px（写死的一整屏），在侧栏里必须按
  * 容器高度重算，否则要么溢出要么塌陷。
  *
- * 下面这五条 !important **保留**（本轮把审核告警逐条过了一遍后的决定）：本条只在侧栏
- * 生效，而上游那条 `#darkroom-root div#notifications` 此时并不命中（元素已搬出根容器）；
- * 本轮也核实了上游 JS 没有给它设内联定位（只有 #notifyGradient 被 space.js 设过 inline
- * background）。也就是说对手是谁、特异性多高，无法在本仓库内确证 —— 而失配的代价是
- * 信息流在侧栏里位置/高度错乱，故维持原样。 */
+ * 这五条 !important **已全部撤掉**：本文件上面「侧栏里的面板容器」那段注释就写明
+ * 「这些元素此刻已不在 #darkroom-root 内」，因此上游那条被作用域化的
+ *   `#darkroom-root div#notifications`（226 行：position:absolute / top:20px / left:0 /
+ *    height:700px / width:200px）**不命中**侧栏里的这个元素；上游 JS 也没给它设过内联定位
+ * （只有 #notifyGradient 被 space.js 设过 inline background）。
+ * 两条规则的作用域互斥 —— 元素在侧栏 ⇒ 上游那条不命中；元素在游戏内 ⇒ 本条不命中。
+ * 既然不存在对手，!important 就是纯冗余。 */
 .darkroom-panel-notifications {
   /* 给 #notifyGradient 一个定位基准（它是 absolute 的）。 */
   position: relative;
@@ -1785,11 +1790,11 @@
 }
 
 .darkroom-panel-notifications #notifications {
-  position: static !important;
-  top: auto !important;
-  left: auto !important;
-  width: auto !important;
-  height: 100% !important;   /* 上游写死 700px，这里改为撑满侧栏 */
+  position: static;
+  top: auto;
+  left: auto;
+  width: auto;
+  height: 100%;              /* 上游写死 700px，这里改为撑满侧栏 */
   overflow: hidden;          /* 与上游一致：由内部滚动而非溢出 */
   display: flex;
   flex-direction: column;

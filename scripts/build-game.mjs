@@ -222,6 +222,23 @@ const TRANSFORMS = [
         `__darkroomHost.openExternal(${JSON.stringify(PROJECT_URL)})`
       ),
   },
+  {
+    id: "drop-inline-button-width",
+    file: "script/Button.js",
+    // 上游让调用方用 options.width 指定按钮宽度，并写成**内联**样式：
+    // room.js / outside.js / path.js 传 '80px'、ship.js 传 '100px'、fabricator.js 传 '150px'。
+    // 那是为英文短文案调的。中文按钮文字更宽，宽度应由样式表统一决定 ——
+    // 上游 css/main.css 本来就把 div.button 定为 100px（见 styles.css 的 #darkroom-root div.button）。
+    // 只要这条内联还在，styles.css 就只能靠 !important 才能压住它；删掉它，宽度回归样式表。
+    // 注意别误伤 events.js:1399 的 `Events.eventPanel().css('width', options.width)` ——
+    // 那是给事件面板本身设宽度，不是按钮，本条按 file 限定，不会触及它。
+    expect: /if\(options\.width\) \{\s*el\.css\('width', options\.width\);\s*\}/,
+    apply: (src) =>
+      src.replace(
+        /if\(options\.width\) \{\s*el\.css\('width', options\.width\);\s*\}/,
+        "/* [darkroom] removed: el.css('width', options.width) —— 按钮宽度改由样式表决定 */"
+      ),
+  },
   // 注意：语言包不写在这里 —— 它由 build() 里的 availableLocales() 动态扫描后逐个改写
   // （见下方「语言包」那段）。写成静态规则的话，语言列表一变（增删语言包）
   // 就会因「变换未生效」而直接报错。
