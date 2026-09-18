@@ -8,6 +8,27 @@
 
 ---
 
+## What this is
+
+A Dark Room begins with a dying fire. You light it in the dark; someone is drawn to the light. You send them out to scavenge, raise a village, and eventually walk into the empty world outside. It has almost no graphics — just text, whitespace and pacing.
+
+This plugin turns it into a **native Obsidian view** rather than an embedded web page: the game renders directly into Obsidian's DOM, wired into the plugin lifecycle, save persistence and the command palette, and it exposes a public API for other plugins to hook into.
+
+**This port is silent** — the original's sound effects and music are not bundled.
+
+The interface ships with **all 25 languages that upstream provides**, and defaults to **English** (which is the upstream text itself, so no translation table is involved). Switch languages from the in-game menu at the bottom-right — its rightmost entry is the language picker, exactly as in the original. Your choice is remembered.
+
+The look follows your Obsidian theme: light and dark are detected automatically, and the game paints no background of its own so your theme shows through.
+
+---
+
+## Effects
+![d00077ab1eff45ed7ee43063d16fd90a.png](img/d00077ab1eff45ed7ee43063d16fd90a.png)
+![570de986192145a29544ae8b89adf7a2.png](img/570de986192145a29544ae8b89adf7a2.png)
+![215042eb-0002-4d67-831d-7c5fc964d407.png](img/215042eb-0002-4d67-831d-7c5fc964d407.png)
+
+---
+
 ## ⚠️ Provenance and license
 
 **This plugin is not the original game.** It is a port; the game itself was made by someone else. Please note the attribution below.
@@ -27,25 +48,6 @@ The upstream source is **redistributed in [`src/game/upstream/`](./src/game/upst
 This port is not affiliated with or endorsed by Doublespeak Games. The name and content of "A Dark Room" belong to its original author.
 
 ---
-
-## Effects
-![d00077ab1eff45ed7ee43063d16fd90a.png](img/d00077ab1eff45ed7ee43063d16fd90a.png)
-![570de986192145a29544ae8b89adf7a2.png](img/570de986192145a29544ae8b89adf7a2.png)
-![215042eb-0002-4d67-831d-7c5fc964d407.png](img/215042eb-0002-4d67-831d-7c5fc964d407.png)
-
----
-
-## What this is
-
-A Dark Room begins with a dying fire. You light it in the dark; someone is drawn to the light. You send them out to scavenge, raise a village, and eventually walk into the empty world outside. It has almost no graphics — just text, whitespace and pacing.
-
-This plugin turns it into a **native Obsidian view** rather than an embedded web page: the game renders directly into Obsidian's DOM, wired into the plugin lifecycle, save persistence and the command palette, and it exposes a public API for other plugins to hook into.
-
-**This port is silent** — the original's sound effects and music are not bundled.
-
-The interface ships with **all 25 languages that upstream provides**, and defaults to **English** (which is the upstream text itself, so no translation table is involved). Switch languages from the in-game menu at the bottom-right — its rightmost entry is the language picker, exactly as in the original. Your choice is remembered.
-
-The look follows your Obsidian theme: light and dark are detected automatically, and the game paints no background of its own so your theme shows through.
 
 ## Install
 
