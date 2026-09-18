@@ -134,6 +134,36 @@ const retargetTitle = {
 
 const TRANSFORMS = [
   {
+    id: "drop-jquery-script-transport",
+    file: "lib/jquery.min.js",
+    // jQuery 1.10.1 内建一个「跨域 script 传输」：当 $.ajax 的 dataType 是 script 且请求
+    // 跨域时，它会 document.createElement("script")、把 s.url 赋给 src，再插进 <head> ——
+    // 也就是**运行期动态加载并执行任意外部脚本**。这既是安全审计的必报项
+    // （Code creates script elements at runtime），对本插件也毫无用处：
+    // A Dark Room 全程不发跨域 script 请求（语言包已改为构建期登记、不落网络，
+    // 见 upstream.meta.json 的 defer-language-pack），该分支是死代码。
+    // 整段删掉后，万一真有代码走到这里，jQuery 会因找不到对应 transport 直接报错，
+    // 而不是悄悄去加载远程脚本 —— 这正是想要的方向。
+    expect: /,x\.ajaxTransport\("script",function\(e\)\{if\(e\.crossDomain\)\{/,
+    apply: (src) => {
+      // 注意前导的那个逗号必须一起吃进来：这段代码被压缩器并进了**逗号表达式**
+      // （…x.ajaxSetup(…),x.ajaxPrefilter(…),x.ajaxTransport(…)…）。只删右操作数会留下
+      // 一个悬空逗号，产出 `…}),/*…*/;var Fn=[]` 这种 esbuild 报 Unexpected ";" 的废码。
+      const out = src.replace(
+        /,x\.ajaxTransport\("script",function\(e\)\{if\(e\.crossDomain\)\{[\s\S]*?abort:function\(\)\{n&&n\.onload\(t,!0\)\}\}\}\}\)/,
+        "/* [darkroom] removed: cross-domain script transport —— 原实现会动态创建一个 script 元素、把 s.url 赋给 src 再插进 head，即运行期加载并执行外部脚本 */"
+      );
+      // 宁可当场报错，也不要静默留下一条「能加载远程代码」的路径。
+      if (out === src) {
+        throw new Error('[build-game] 变换 "drop-jquery-script-transport" 的正则未删掉任何内容。');
+      }
+      if (out.indexOf('createElement("script")') !== -1) {
+        throw new Error('[build-game] 变换 "drop-jquery-script-transport" 执行后仍残留 createElement("script")。');
+      }
+      return out;
+    },
+  },
+  {
     id: "scope-i18n-helper",
     file: "lib/translate.js",
     expect: /window\._ = translate;/,

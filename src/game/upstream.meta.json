@@ -169,6 +169,12 @@
 			"effect": "在拼接作用域内预先提供本地 `module.exports`，使 jQuery 走 CommonJS 分支并从 module.exports 取回，全程不触碰 window。"
 		},
 		{
+			"id": "drop-jquery-script-transport",
+			"target": "lib/jquery.min.js",
+			"reason": "jQuery 1.10.1 内建一个「跨域 script 传输」（ajaxTransport(\"script\", …)）：当 $.ajax 的 dataType 为 script 且请求跨域时，它会 document.createElement(\"script\")、把 s.url 赋给 src 再插进 <head>，即**运行期动态加载并执行任意外部脚本**。这既是安全审计的必报项（Code creates script elements at runtime），对本插件也毫无用处 —— A Dark Room 全程不发跨域 script 请求（语言包已改为构建期登记、不落网络，见 defer-language-pack），该分支是死代码。",
+			"effect": "构建期把该 x.ajaxTransport(\"script\", …) 调用整段替换为说明性注释，于是 a.createElement(\"script\") 与 n.src=e.url 两处动态加载外部脚本的代码一并消失。此后若真有代码走到这条路径，jQuery 会因找不到对应 transport 而直接报错，而不是去加载远程脚本。变换内部还会在替换后断言该字面量已不存在、否则当场抛错 —— 不把「静默留下一条可加载远程代码的路径」当作可接受结果。"
+		},
+		{
 			"id": "scope-i18n-helper",
 			"target": "lib/translate.js",
 			"reason": "该文件末尾执行 `window._ = translate;`，会把翻译函数 _ 挂到全局 window。",
