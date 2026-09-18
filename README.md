@@ -103,9 +103,3 @@ src/
     generated/            build-time generated artifacts (not committed)
 scripts/                  build-time codegen scripts
 ```
-
-## License
-
-- Adapter layer of this plugin: **MIT** ([`LICENSE`](./LICENSE))
-- [`styles.css`](./styles.css): **mixed** — its main body is the scoped upstream stylesheet (**MPL-2.0**), while the trailing "本插件自身的样式" section is ours (**MIT**)
-- `src/game/upstream/**` (A Dark Room upstream source and the bundled third-party libraries): **MPL-2.0** plus the respective licenses of each library ([`A-DARK-ROOM-MPL-2.0.md`](./A-DARK-ROOM-MPL-2.0.md), [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md))
