@@ -1,6 +1,6 @@
 # Darkroom
 
-> [**A Dark Room**](https://github.com/doublespeakgames/adarkroom) — a minimalist text adventure — ported into Obsidian.
+> Bring [**A Dark Room**](https://github.com/doublespeakgames/adarkroom) — a minimalist text adventure — ported into Obsidian.
 
 ---
 
