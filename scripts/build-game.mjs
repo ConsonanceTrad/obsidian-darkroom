@@ -218,17 +218,35 @@ const TRANSFORMS = [
     id: "drop-menu-entries",
     file: "script/engine.js",
     expect: /_\(\s*['"]share\.['"]\s*\)/,
-    // 主菜单里这三项对本移植没有意义，整块删掉：
+    // 主菜单里这四项对本移植没有意义，整块删掉：
     //   应用商店 —— 引导去下载手机 App；
     //   分享     —— 外链社交分享；
-    //   夜间模式 —— 改为跟随 Obsidian 的深/浅色设置，不再由游戏内手动切换。
+    //   夜间模式 —— 改为跟随 Obsidian 的深/浅色设置，不再由游戏内手动切换；
+    //   声音开/关 —— 本移植静音分发（音频不随包，见 upstream.meta.json 的
+    //               audio-engine-stub），AudioEngine 是 no-op，这个开关点了什么都不会发生。
+    //               留着它只会让人以为能开声音 —— 一个按下去没反应的按钮比没有按钮更糟。
     // 每一项的形状都是 `$('<span>') … .appendTo(menu);`，故按块匹配，
-    // 再用块内的文案判断是否属于要删的三项（非贪婪，不会吃到相邻块）。
+    // 再用块内的文案判断是否属于要删的几项。
+    //
+    // 终止锚点必须写成 appendTo(<任意目标>) 而**不是** appendTo(menu)：语言下拉那一块是
+    // `.appendTo(customSelect);`，从前只认 menu 的话正则不会在那里收尾，会一路吃到后面
+    // volume 块的 `.appendTo(menu);` —— 两段粘成一块，于是连语言下拉一起删掉。
+    // （这个坑原先没暴露，只因为当时判定文案里没有 sound。下面再加一道跨块断言兜底。）
     apply: (src) =>
       src.replace(
-        /\$\(\s*['"]<span>['"]\s*\)[\s\S]*?\.appendTo\(\s*menu\s*\);\s*/g,
-        (block) =>
-          /_\(\s*['"](get the app|lights off|share)\.?['"]\s*\)/.test(block) ? "" : block
+        /\$\(\s*['"]<span>['"]\s*\)[\s\S]*?\.appendTo\(\s*[^)]*\);\s*/g,
+        (block) => {
+          const starts = (block.match(/\$\(\s*['"]<span>['"]\s*\)/g) || []).length;
+          if (starts > 1) {
+            throw new Error(
+              `[build-game] drop-menu-entries 的块匹配跨块了（一块内含 ${starts} 个 $('<span>')）—— ` +
+                `上游 engine.js 的菜单项结构可能已变，请复核后再放开。`
+            );
+          }
+          return /_\(\s*['"](get the app|lights off|share|sound on|sound off)\.?['"]\s*\)/.test(block)
+            ? ""
+            : block;
+        }
       ),
   },
   {

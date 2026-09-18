@@ -1648,21 +1648,24 @@
 
 /* 菜单项从左到右的顺序。
  *
- * 构建期删掉「应用商店 / 分享 / 夜间模式」、并启用语言下拉之后，DOM 顺序是：
- *   1 customSelect(语言)  2 volume(sound on.)  3 hyper(加速)
- *   4 restart(重启)       5 save(保存)         6 github
- * 上游的 float:right 会把它显示成倒序（github 保存 重启 加速 sound on. 语言）。
+ * 构建期删掉「应用商店 / 分享 / 夜间模式 / 声音开关」、并启用语言下拉之后，
+ * DOM 顺序是（按 `$('<span>')…appendTo(menu)` 的先后）：
+ *   1 customSelect(语言)  2 hyper(加速)  3 restart(重启)  4 save(保存)  5 github
+ * 上游的 float:right 会把它显示成倒序（github 保存 重启 加速 语言）。
  * 下面按期望的顺序指定 order：
- *   github  →  sound on.  →  加速  →  重启  →  保存  →  语言
+ *   github  →  加速  →  重启  →  保存  →  语言
  *
- * 注意：这几条与「菜单里到底有几个 span、分别是谁」强耦合。再增删菜单项时，
- * 这里必须跟着改 —— 否则 nth-child 会指向错误的元素。 */
-#darkroom-root .menu > span:nth-child(1) { order: 6; } /* customSelect —— 语言下拉 */
-#darkroom-root .menu > span:nth-child(2) { order: 2; } /* volume  —— sound on. */
-#darkroom-root .menu > span:nth-child(3) { order: 3; } /* hyper   —— 加速 */
-#darkroom-root .menu > span:nth-child(4) { order: 4; } /* restart —— 重启 */
-#darkroom-root .menu > span:nth-child(5) { order: 5; } /* save    —— 保存 */
-#darkroom-root .menu > span:nth-child(6) { order: 1; } /* github */
+ * 注意：这几条与「菜单里到底有几个 span、分别是谁」强耦合 —— nth-child 数的是**位置**，
+ * 不是身份。增删任何菜单项都必须回来重排一遍，否则 order 会落到别的元素上。
+ * （踩过的坑：删掉 sound on. 之后没同步这里，github 被 nth-child(5) 抓走，显示上从最左
+ *   跑到了第 4 位 —— 动一个元件的代价是别的元件换了位置，这属于不该发生的副作用。）
+ * 另外 dropbox 项是**条件创建**的（engine.js 里由 `this.options.dropbox && Engine.Dropbox`
+ * 守卫），它一旦出现就会顶掉后面的位置；本移植不启用 Dropbox，故按上面这 5 项排。 */
+#darkroom-root .menu > span:nth-child(1) { order: 5; } /* customSelect —— 语言下拉 */
+#darkroom-root .menu > span:nth-child(2) { order: 2; } /* hyper   —— 加速 */
+#darkroom-root .menu > span:nth-child(3) { order: 3; } /* restart —— 重启 */
+#darkroom-root .menu > span:nth-child(4) { order: 4; } /* save    —— 保存 */
+#darkroom-root .menu > span:nth-child(5) { order: 1; } /* github */
 
 /* 语言切换（customSelect）—— 尽量照上游原样，不自造外观。
  *

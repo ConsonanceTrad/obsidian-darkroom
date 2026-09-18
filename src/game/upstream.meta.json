@@ -219,8 +219,8 @@
 		{
 			"id": "drop-menu-entries",
 			"target": "script/engine.js",
-			"reason": "主菜单里的三项在本移植中没有意义：应用商店（引导下载手机 App）、分享（外链社交）、夜间模式（改为跟随 Obsidian 的深/浅色设置，不再由游戏内手动切换）。",
-			"effect": "按「$('<span>') … .appendTo(menu);」的块形状匹配，用块内文案判定并整块删除这三项；Engine.getApp / Engine.share / Engine.turnLightsOff 函数本身保留（turnLightsOff 仍被启动逻辑与主题同步使用）。"
+			"reason": "主菜单里的四项在本移植中没有意义：应用商店（引导下载手机 App）、分享（外链社交）、夜间模式（改为跟随 Obsidian 的深/浅色设置，不再由游戏内手动切换）、声音开/关（音频不随包分发、AudioEngine 是 no-op，这个开关按下去不会有任何反应 —— 留着它反而误导玩家）。",
+			"effect": "按「$('<span>') … .appendTo(menu);」的块形状匹配，用块内文案判定并整块删除这四项；Engine.getApp / Engine.share / Engine.turnLightsOff 函数本身保留（turnLightsOff 仍被启动逻辑与主题同步使用）。Engine.toggleVolume 与 `$('.volume')` 那几行会随之成为死代码，但无害：元素既已不存在，查询只是空集，不会抛错。"
 		},
 		{
 			"id": "audio-engine-stub",
