@@ -14,7 +14,7 @@
 | Author / copyright | **Michael Townsend / Doublespeak Games** |
 | Upstream repository | https://github.com/doublespeakgames/adarkroom |
 | Pinned commit | `1fada4620b6c66bd07bf15a3f1eb8223df8bc1d7` (upstream v1.4) |
-| **Original license** | **Mozilla Public License 2.0 (MPL-2.0)** — full text in [`LICENSE-ADARKROOM.md`](./LICENSE-ADARKROOM.md) |
+| **Original license** | **Mozilla Public License 2.0 (MPL-2.0)** — full text in [`A-DARK-ROOM-MPL-2.0.md`](./A-DARK-ROOM-MPL-2.0.md) |
 | Adapter layer license | MIT — see [`LICENSE`](./LICENSE) |
 | Full provenance & changes | [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md) |
 
@@ -102,4 +102,4 @@ scripts/                  build-time codegen scripts
 
 - Adapter layer of this plugin: **MIT** ([`LICENSE`](./LICENSE))
 - [`styles.css`](./styles.css): **mixed** — its main body is the scoped upstream stylesheet (**MPL-2.0**), while the trailing "本插件自身的样式" section is ours (**MIT**)
-- `src/game/upstream/**` (A Dark Room upstream source and the bundled third-party libraries): **MPL-2.0** plus the respective licenses of each library ([`LICENSE-ADARKROOM.md`](./LICENSE-ADARKROOM.md), [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md))
+- `src/game/upstream/**` (A Dark Room upstream source and the bundled third-party libraries): **MPL-2.0** plus the respective licenses of each library ([`A-DARK-ROOM-MPL-2.0.md`](./A-DARK-ROOM-MPL-2.0.md), [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md))

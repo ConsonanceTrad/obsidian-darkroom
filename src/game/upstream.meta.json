@@ -10,7 +10,7 @@
 		"upstreamVersion": "1.4",
 		"license": "MPL-2.0",
 		"copyright": "Michael Townsend / Doublespeak Games",
-		"licenseFile": "LICENSE-ADARKROOM.md"
+		"licenseFile": "A-DARK-ROOM-MPL-2.0.md"
 	},
 
 	"vendored": [
@@ -152,7 +152,7 @@
 		"script/localization.js": "仅为 pygettext/poedit 提供可翻译字符串清单（内容是一串 _('...') 字面量，末尾 keywords = null，运行时无任何作用或副作用）。",
 		"lib/icu.js": "index.html 从未引用。",
 		"doc/**, README.md, contributing.md, dev-server.js, package.json, yarn.lock, .gitattributes, .gitignore, .jshintrc": "上游开发与文档文件，与运行无关。",
-		"LICENSE.md": "不是『排除』，而是改放位置 —— 作为 LICENSE-ADARKROOM.md 置于插件根目录，以便随分发物一同呈现（MPL-2.0 §3.2 要求）。"
+		"LICENSE.md": "不是『排除』，而是改放位置 —— 作为 A-DARK-ROOM-MPL-2.0.md 置于插件根目录，以便随分发物一同呈现（MPL-2.0 §3.2 要求）。文件名刻意不含 LICENSE 词根：含该词根的非标准后缀文件会被 GitHub 的 license 检测当成候选，干扰仓库级许可识别。"
 	},
 
 	"buildTimeTransforms": [

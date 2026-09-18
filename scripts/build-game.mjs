@@ -347,7 +347,7 @@ const BANNER = `/*
  * 版权归 Michael Townsend / Doublespeak Games 所有。
  *   上游仓库：https://github.com/doublespeakgames/adarkroom
  *   固定提交：${COMMIT}
- *   许可全文：LICENSE-ADARKROOM.md
+ *   许可全文：A-DARK-ROOM-MPL-2.0.md
  *   来源与改动：THIRD_PARTY_NOTICES.md
  *   逐条改动登记：src/game/upstream.meta.json 的 buildTimeTransforms
  *

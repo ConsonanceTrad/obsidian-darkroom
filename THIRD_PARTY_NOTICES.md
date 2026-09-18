@@ -17,7 +17,7 @@ A Dark Room 的代码与素材并非本插件作者原创 —— 其版权与许
 | 获取地址 | https://codeload.github.com/doublespeakgames/adarkroom/tar.gz/1fada4620b6c66bd07bf15a3f1eb8223df8bc1d7 |
 | 获取日期 | 2026-09-18 |
 | 许可 | **Mozilla Public License 2.0 (MPL-2.0)** |
-| 许可全文 | 本仓库根目录 [`LICENSE-ADARKROOM.md`](./LICENSE-ADARKROOM.md) |
+| 许可全文 | 本仓库根目录 [`A-DARK-ROOM-MPL-2.0.md`](./A-DARK-ROOM-MPL-2.0.md)（文件名刻意不含 `LICENSE` 词根 —— 含该词根的非标准后缀文件会被 GitHub 的 license 检测当成候选，从而干扰仓库级许可识别） |
 
 上游源码随本仓库分发于 `src/game/upstream/`，**逐字节未作修改**（可用上表 tarball 逐个 `cmp` 比对）——**唯一的例外是样式表**：`css/**` 与 `lang/zh_cn/main.css` 已一次性作用域化、固化进根目录 [`styles.css`](./styles.css)，因此不再随本仓库分发。
 按 MPL-2.0 §3.2 的要求，源码可得性由此满足：除样式表外的源码都在同仓库中，样式表的源码可由上表的上游仓库（或其 tarball）取得。
