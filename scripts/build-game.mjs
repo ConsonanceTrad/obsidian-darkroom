@@ -690,6 +690,47 @@ if (locale && __darkroomTranslations[locale]) {
     console.warn("[build-game] 未发现任何语言包 —— 界面只会是英文原文。");
   }
 
+  // ── 补充词条：本移植自行补上的译文（上游语言包未覆盖的部分）────────────────
+  //
+  // 上游 zh_cn 的翻译停留在早期版本：后期追加的内容（The Executioner 剧情、制造机、
+  // 飞船、marketing 事件等）共 234 条没有中文。但那些文案的**代码**早就被 _() 包裹了
+  // （上游做过国际化），只是语言包里没有对应键 —— 而 lib/translate.js 查不到键时会
+  // 原样返回 key，于是界面上直接露出英文（症状：同一面板里 give in 是英文、
+  // 放任不管 是中文，因为后者在语言包里、前者不在）。
+  //
+  // 修法不是去改 vendored 的 lang/zh_cn/strings.js（它受“逐字节未修改”约束），
+  // 而是在本仓库另存一份补充表，构建期合并进同一张表。
+  //
+  // 数据源：src/game/i18n/<locale>.extra.json，键 = 上游原文，值 = 译文。
+  // 新增一门语言的补充词条无需改本文件：往 src/game/i18n/ 丢一份即可。
+  for (const locale of locales) {
+    const extraFile = path.join(ROOT, "src", "game", "i18n", `${locale}.extra.json`);
+    if (!fs.existsSync(extraFile)) continue;
+    const extra = JSON.parse(fs.readFileSync(extraFile, "utf8"));
+
+    // 键必须真的在上游脚本里出现。抄错一个字符、或上游日后改了文案，都会在这里当场报错 ——
+    // 否则那条译文会**静默失效**（键对不上就永远不会被查表命中），比缺译更难发现。
+    const haystack = MODULES.filter((m) => m.file && m.file.endsWith(".js"))
+      .map((m) => readUpstream(m.file))
+      .join("\n");
+    const orphans = Object.keys(extra).filter(
+      (k) => !haystack.includes(`'${k}'`) && !haystack.includes(`"${k}"`)
+    );
+    if (orphans.length) {
+      throw new Error(
+        `[build-game] src/game/i18n/${locale}.extra.json 里有 ${orphans.length} 个键在上游脚本中找不到：\n` +
+          orphans.map((k) => `  · ${k}`).join("\n") +
+          `\n（多半是与上游原文不一致；键对不上就等于没译。）`
+      );
+    }
+
+    translationChunks.push(
+      `/* [本移植] ${locale} 补充词条 —— 上游语言包未覆盖的 ${Object.keys(extra).length} 条 */\n` +
+        `Object.assign(__darkroomTranslations[${JSON.stringify(locale)}], ${JSON.stringify(extra)});`
+    );
+    console.log(`[build-game] 已合并 ${locale} 补充词条：${Object.keys(extra).length} 条`);
+  }
+
   // 语言菜单的数据源。
   //
   // 上游 engine.js:122 本来就有一段「在右下角菜单里追加语言下拉」的代码，
