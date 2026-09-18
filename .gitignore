@@ -1,0 +1,10 @@
+.reasonix/
+.idea/
+node_modules/
+output/
+main.js
+*.js.map
+src/game/generated/
+.tmp/
+adarkroom-main.zip
+data.json

@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "module": "ESNext",
+    "target": "ES2018",
+    "allowJs": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "moduleResolution": "bundler",
+    "importHelpers": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "strictNullChecks": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2019"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules/**", "src/game/upstream/**"]
+}

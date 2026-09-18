@@ -1,0 +1,157 @@
+/* 本插件自身的样式（非上游代码，MIT）。
+ *
+ * #darkroom-root 是游戏根容器 —— 上游的每一条选择器都已在构建期被加上这个前缀，
+ * 所以这里只需要处理它在 Obsidian 视图中的定位、滚动与底色。
+ *
+ * 上游布局的几点前提，这里都顺着它来：
+ *   - div#wrapper 是 margin:auto 的 700px 定宽块，左侧还留了 220px 内边距给通知栏；
+ *   - div#content 固定高 700px；
+ *   - 底色与文字色：**不自铺**任何底色，全部交给 Obsidian 主题（见下方 .darkroom-container
+ *     与 #darkroom-root.darkenLights 两条），这样换任何主题都能自然融合；
+ *     上游那些**元件**自带的深色值（#stores / .eventPanel / .tooltip 等）保持不动。 */
+
+/* ── 最关键的一条：box-sizing ──────────────────────────────────────────
+ *
+ * Obsidian 的全局样式把 box-sizing 设成了 border-box，而 A Dark Room 整套布局是按
+ * content-box 写的。最直接的受害者是 div#wrapper（main.css:41）：
+ *
+ *     div#wrapper { width: 700px; padding: 20px 0 0 220px; }
+ *
+ * 上游语意是「内容 700px + 左侧 220px（留给通知栏）= 总宽 920px」；
+ * 在 border-box 下变成「总宽 700px、内容只剩 480px」。
+ *
+ * 于是 div#content 实测只有 480px 宽，而它又带着 overflow: hidden ——
+ * 靠 right:0 贴到包含块 #roomPanel（700px）右缘的库存栏 #storesContainer
+ * 落在 x=1016~1216，整块都在 #content 右边缘（1016+480 = 996）之外，被直接裁掉。
+ * 表现就是「右侧库存看不见」。把游戏子树恢复成 content-box，上游的尺寸假设才成立。 */
+#darkroom-root,
+#darkroom-root *,
+#darkroom-root *::before,
+#darkroom-root *::after {
+  box-sizing: content-box;
+}
+
+/* 游戏视图容器。
+ *
+ * 不铺自己的底色 —— 上游 ADR 的整页底色来自 body（浏览器默认白 + css/dark.css 的深色），
+ * 在这里我们把它交给 Obsidian 主题：浅色主题露出浅色、深色主题露出深色，
+ * 带色调的主题也不会被一层写死的白/黑盖住。文字颜色仍随主题走。 */
+.darkroom-container {
+  height: 100%;
+  overflow: auto;
+  color: #000000;
+}
+
+.theme-dark .darkroom-container {
+  color: #eee;
+}
+
+/* 上游 css/dark.css 的 `body { background-color: #272823; color: #EEE }` 经作用域化后
+ * 落在根容器上 —— 那是它自带的墨绿黑。这里只清掉**底色**，让主题背景透上来，
+ * 否则根容器内外会叠出两层色差（容器一层、根容器一层）。
+ * color 保留：深色主题下文字本来就该是浅色的。
+ * 注意 dark.css 里那些**元件**的深色值（#stores / .eventPanel / .tooltip / #saveNotify …）
+ * 一律不动，它们本来就该是深色。 */
+#darkroom-root.darkenLights {
+  background-color: transparent;
+}
+
+#darkroom-root {
+  position: relative;
+  /* 与 #wrapper 对应：内容 700 + 左侧内边距 220 = 920px。 */
+  width: 920px;
+  margin: 0 auto;
+}
+
+/* tooltip 的内容是两个浮动块：row_key（float:left; clear:both）与 row_val（float:right）。
+   上游只给三类 tooltip 指定了固定宽度（storeRow 160px / workerRow 150px / button 100px），
+   其余都是 position:absolute 且无宽度，宽度走 shrink-to-fit —— 而内容全是浮动元素时
+   这个收缩很容易算窄，row_val 于是被挤到第二行，提示框看起来就"歪"成上下两块。
+   给个下限兜住；已有 width 的规则不受影响。 */
+#darkroom-root div.tooltip {
+  min-width: 100px;
+}
+
+/* 游戏内提示条：上游用 #saveNotify 做"已保存"淡出动画，
+   它是 position:fixed 的，在 Obsidian 的可滚动视图里会跑到视口角落。
+   改为绝对定位，使其跟随根容器。 */
+#darkroom-root div#saveNotify {
+  position: absolute;
+}
+
+/* 游戏主菜单（sound on. / 加速 / 重启 / 保存 / github）。
+ *
+ * 上游是 div.menu { position: fixed; right: 10px; bottom: 10px }，靠兄弟规则
+ * .menu span { float: right } 把这一排文字横向排在右下角。收进 Obsidian 后要处理三处：
+ *
+ *   1. 定位：fixed 会贴到 Obsidian 窗口右下角而不是视图内，改成 absolute。
+ *   2. 类名撞车：Obsidian 自己也用 .menu 这个类（它的菜单容器），会带过来圆角、阴影、
+ *      底色等属性；我们的选择器特异性更高，显式收回这些外观即可。
+ *   3. 排布：改成 flex（下面用 order 显式定序）。注意 float 在 flex 容器里会被忽略，
+ *      所以上游那条 .menu span { float: right } 在这里不再起作用 —— 正好，
+ *      本来就要绕开它那套视觉倒序。 */
+#darkroom-root .menu {
+  position: absolute;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  height: auto;
+
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+
+/* 菜单项从左到右的顺序。
+ *
+ * 构建期删掉「应用商店 / 分享 / 夜间模式」之后，剩下的 DOM 顺序是：
+ *   1 volume(sound on.)   2 hyper(加速)   3 restart(重启)   4 save(保存)   5 github
+ * 上游的 float:right 会把它显示成倒序 —— 也就是 github 保存 重启 加速 sound on.
+ * （这正是我们先看到的样子）。下面按期望的顺序指定 order：
+ *   github  →  sound on.  →  加速  →  重启  →  保存
+ *
+ * 注意：这几条依赖「删除后只剩 5 项」这个前提。若之后启用语言菜单
+ * （engine.js 里 customSelect 排在这些项之前），它会成为 nth-child(1)，
+ * 这里要整体后移一位。 */
+#darkroom-root .menu > span:nth-child(1) { order: 2; } /* volume  —— sound on. */
+#darkroom-root .menu > span:nth-child(2) { order: 3; } /* hyper   —— 加速 */
+#darkroom-root .menu > span:nth-child(3) { order: 4; } /* restart —— 重启 */
+#darkroom-root .menu > span:nth-child(4) { order: 5; } /* save    —— 保存 */
+#darkroom-root .menu > span:nth-child(5) { order: 1; } /* github */
+
+#darkroom-root .logo {
+  position: absolute;
+}
+
+/* 按钮冷却条 —— 上游每个按钮都会 append 一个 div.cooldown，冷却条无处不在。
+ *
+ * 上游用 div.cooldown 的 z-index:-1 把它垫在按钮文字之下，这依赖两个前提：
+ * div.button 自身不是层叠上下文，且祖先链上没有人画底色（上游 body 只设了 height/margin，
+ * 整页底色其实是浏览器的默认白）。上游确实满足，所以浅灰条压在白底上看得见。
+ * 但在 Obsidian 视图里容器与根容器都可能被主题画出底色，这个 -1 会被压到它们之下 ——
+ * 于是所有按钮的冷却进度一起消失。让按钮自成层叠上下文，即可还原上游的层叠关系。 */
+#darkroom-root div.button {
+  isolation: isolate;
+}
+
+/* 但层叠上下文也把 tooltip 关进了按钮内 —— 上游的 tooltip 是 z-index:999，
+ * 原本能穿透按钮、排在所有 z-index:auto 的兄弟之上；隔离之后它只能参与按钮自身的
+ * 层叠层级，于是会被 DOM 顺序靠后的相邻按钮盖住（表现就是 tooltip 被截掉一块）。
+ * 悬浮时把按钮抬到兄弟之上，两个需求即可兼得。 */
+#darkroom-root div.button:hover {
+  z-index: 2;
+}
+
+/* 同一类问题的另一处：太空过场的星空。
+ * #stars / #starsBack 是 z-index:-1 的星点层，本意是垫在 #starsContainer 的内容之下；
+ * 而 #starsContainer 自身是 position:absolute + z-index:auto，并不构成层叠上下文，
+ * 于是这两个 -1 会一路穿透到容器底色之下。给它加隔离，把星点关回自己的容器里。 */
+#darkroom-root #starsContainer {
+  isolation: isolate;
+}

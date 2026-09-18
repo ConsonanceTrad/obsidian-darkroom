@@ -1,0 +1,238 @@
+{
+	"source": {
+		"title": "A Dark Room",
+		"tagline": "A minimalist text adventure",
+		"repository": "https://github.com/doublespeakgames/adarkroom",
+		"branch": "main",
+		"commit": "1fada4620b6c66bd07bf15a3f1eb8223df8bc1d7",
+		"retrievedVia": "https://codeload.github.com/doublespeakgames/adarkroom/tar.gz/1fada4620b6c66bd07bf15a3f1eb8223df8bc1d7",
+		"retrievedAt": "2026-09-18",
+		"upstreamVersion": "1.4",
+		"license": "MPL-2.0",
+		"copyright": "Michael Townsend / Doublespeak Games",
+		"licenseFile": "LICENSE-ADARKROOM.md"
+	},
+
+	"vendored": [
+		"index.html",
+		"script/Button.js",
+		"script/engine.js",
+		"script/state_manager.js",
+		"script/header.js",
+		"script/notifications.js",
+		"script/events.js",
+		"script/room.js",
+		"script/outside.js",
+		"script/world.js",
+		"script/path.js",
+		"script/ship.js",
+		"script/space.js",
+		"script/fabricator.js",
+		"script/prestige.js",
+		"script/scoring.js",
+		"script/audioLibrary.js",
+		"script/events/global.js",
+		"script/events/room.js",
+		"script/events/outside.js",
+		"script/events/encounters.js",
+		"script/events/setpieces.js",
+		"script/events/marketing.js",
+		"script/events/executioner.js",
+		"css/main.css",
+		"css/room.css",
+		"css/outside.css",
+		"css/path.css",
+		"css/world.css",
+		"css/ship.css",
+		"css/space.css",
+		"css/fabricator.css",
+		"css/dark.css",
+		"lib/jquery.min.js",
+		"lib/jquery.color-2.1.2.min.js",
+		"lib/jquery.event.move.js",
+		"lib/jquery.event.swipe.js",
+		"lib/base64.js",
+		"lib/translate.js",
+		"lang/zh_cn/strings.js",
+		"lang/zh_cn/main.css",
+		"lang/zh_cn/strings.po"
+	],
+
+	"vendoredNote": "以上文件一律原样保留、逐字节未修改（可用 cmp 与上游 tarball 比对）。上游的 MPL-2.0 版权头与第三方库的许可头均保留在各自文件内。lang/zh_cn/strings.po 是 zh_cn 翻译的源码形式（strings.js 由上游 tools/po2js.py 从它生成），保留它是为了日后可以直接校订中文文案。",
+
+	"imageAudit": {
+		"checkedAt": "2026-09-18",
+		"conclusion": "结论：游戏运行时不需要任何位图，也没有任何需要用 SVG 重绘来替代的项。上游对 img/ 的全部引用都位于 index.html 的 <head> 元数据中，而构建只取 <body> 骨架与 <script> 加载顺序，head 一概不搬。",
+		"findings": [
+			{
+				"where": "index.html:15",
+				"ref": "<meta itemprop=\"image\" property=\"og:image\" content=\"img/adr.png\" />",
+				"kind": "SEO / OpenGraph 元数据",
+				"action": "无需替换 —— 构建不搬 head"
+			},
+			{
+				"where": "index.html:18",
+				"ref": "<link rel=\"image_src\" href=\"img/adr.png\" />",
+				"kind": "旧式 image_src 元数据",
+				"action": "无需替换 —— 构建不搬 head"
+			},
+			{
+				"where": "index.html:17",
+				"ref": "<link rel=\"shortcut icon\" href=\"favicon.ico\" />",
+				"kind": "站点图标",
+				"action": "无需替换 —— 构建不搬 head"
+			},
+			{
+				"where": "index.html:114-118",
+				"ref": "<a class=\"logo\" href=\"https://www.doublespeakgames.com\"><svg …></svg></a>",
+				"kind": "页面左下角品牌 logo",
+				"action": "它本来就是内联 SVG（并非 img/ 引用）。视图骨架只取 <div id=\"wrapper\">，故不引入；也不重绘，游戏本体不需要它。"
+			},
+			{
+				"where": "css/main.css, css/room.css, css/outside.css, css/path.css, css/world.css, css/ship.css, css/space.css, css/fabricator.css, css/dark.css, lang/zh_cn/main.css",
+				"ref": "全部 10 个样式表中 url( 出现 0 次",
+				"kind": "样式表",
+				"action": "无需处理。各项视觉都由纯色、边框、字体与动画构成；星空（#stars/#starsBack/.star）是 JS 生成的 div，并非图片。"
+			}
+		]
+	},
+
+	"excluded": [
+		"img/**",
+		"audio/**",
+		"favicon.ico",
+		"browserWarning.html",
+		"mobileWarning.html",
+		"lang/langs.js",
+		"lang/main.css",
+		"lang/adarkroom.pot",
+		"lang/babel.cfg",
+		"lang/cs/**",
+		"lang/de/**",
+		"lang/el/**",
+		"lang/eo/**",
+		"lang/es/**",
+		"lang/fr/**",
+		"lang/gl/**",
+		"lang/id/**",
+		"lang/it/**",
+		"lang/ja/**",
+		"lang/ko/**",
+		"lang/lt_LT/**",
+		"lang/lv/**",
+		"lang/nb/**",
+		"lang/pl/**",
+		"lang/pt/**",
+		"lang/pt_br/**",
+		"lang/ru/**",
+		"lang/sv/**",
+		"lang/th/**",
+		"lang/tr/**",
+		"lang/uk/**",
+		"lang/vi/**",
+		"lang/zh_tw/**",
+		"script/audio.js",
+		"script/dropbox.js",
+		"script/localization.js",
+		"lib/icu.js",
+		"tools/**",
+		"doc/**",
+		"dev-server.js",
+		"package.json",
+		"yarn.lock",
+		"README.md",
+		"contributing.md",
+		"LICENSE.md",
+		".gitattributes",
+		".gitignore",
+		".jshintrc"
+	],
+
+	"excludedReasons": {
+		"img/**": "游戏运行时不需要任何位图。img/ 下仅有 App Store / Google Play 下载徽章、五种浏览器图标与品牌 logo，这些只被 README、browserWarning.html 和 index.html 的 SEO <meta property=\"og:image\"> 引用；游戏画面完全由 CSS 与文字绘制。不引入同时也避免了 Apple / Google 徽章与各浏览器 logo 的商标使用问题。",
+		"audio/**": "本移植按用户要求静音分发（86 个 flac 音效与配乐）。script/audioLibrary.js 作为常量表保留（事件模块以 AudioLibrary.XXX 引用它），但真正的播放引擎 script/audio.js 被排除。",
+		"favicon.ico": "站点图标，桌面端应用内无 favicon 概念。",
+		"browserWarning.html": "浏览器能力检测跳转页。engine.js 的 Engine.init() 里有 window.location = 'browserWarning.html'，在 Obsidian 中会把整个应用窗口跳走，属于必须移除的行为（见 buildTimeTransforms）。",
+		"mobileWarning.html": "移动端警告跳转页，同上，engine.js 里有 window.location = 'mobileWarning.html'。",
+		"lang/langs.js": "语言列表。engine.js:122 以 typeof langs != 'undefined' 守卫，缺失时仅意味着不渲染语言切换菜单 —— 与『仅中文』的分发策略一致。",
+		"lang/<其余语种>/**": "按用户要求仅随包简体中文（zh_cn）。",
+		"lang/adarkroom.pot, lang/babel.cfg, tools/**": "翻译提取与 po→js 生成工具链；本机无 Python，且不需要再生成语言文件。lang/zh_cn/strings.js 直接取自上游已生成产物。",
+		"script/audio.js": "Web Audio API 播放引擎，被 10 个模块调用约 150 处。排除后由构建期注入的 no-op stub 顶替，调用点无需改动。",
+		"script/dropbox.js": "Dropbox 云存档集成。index.html 从未引用它，且 engine.js 中相关入口由 this.options.dropbox 守卫，不启用即不加载。",
+		"script/localization.js": "仅为 pygettext/poedit 提供可翻译字符串清单（内容是一串 _('...') 字面量，末尾 keywords = null，运行时无任何作用或副作用）。",
+		"lib/icu.js": "index.html 从未引用。",
+		"doc/**, README.md, contributing.md, dev-server.js, package.json, yarn.lock, .gitattributes, .gitignore, .jshintrc": "上游开发与文档文件，与运行无关。",
+		"LICENSE.md": "不是『排除』，而是改放位置 —— 作为 LICENSE-ADARKROOM.md 置于插件根目录，以便随分发物一同呈现（MPL-2.0 §3.2 要求）。"
+	},
+
+	"buildTimeTransforms": [
+		{
+			"id": "drop-cdn-and-analytics",
+			"target": "index.html",
+			"reason": "index.html 的 head 里含有 Google CDN 的 jQuery 1.10.1 与 Google Analytics (gtag.js) 脚本。构建产物不加载任何外部脚本。",
+			"effect": "仅解析 index.html 的 <script> 顺序与 <body> 骨架，其中的外链脚本一概忽略。"
+		},
+		{
+			"id": "hoist-jquery-off-global",
+			"target": "lib/jquery.min.js, lib/jquery.color-2.1.2.min.js, lib/jquery.event.move.js, lib/jquery.event.swipe.js",
+			"reason": "jQuery 1.10.1 的 UMD 尾部为 `\"object\"==typeof module && module && \"object\"==typeof module.exports ? module.exports = x : (e.jQuery = e.$ = x)`。若放任其走 else 分支会向 Obsidian 的 window 注入 $ / jQuery，可能与其它插件冲突。",
+			"effect": "在拼接作用域内预先提供本地 `module.exports`，使 jQuery 走 CommonJS 分支并从 module.exports 取回，全程不触碰 window。"
+		},
+		{
+			"id": "scope-i18n-helper",
+			"target": "lib/translate.js",
+			"reason": "该文件末尾执行 `window._ = translate;`，会把翻译函数 _ 挂到全局 window。",
+			"effect": "改为赋值给拼接作用域内的局部 _，使 lang/zh_cn/strings.js 的 _.setTranslation(...) 与全量模块的 _('...') 调用都在隔离作用域内解析。"
+		},
+		{
+			"id": "predeclare-implicit-globals",
+			"target": "src/game/generated/adr.runtime.js（拼接 IIFE 的作用域顶部）",
+			"reason": "上游有若干符号依赖浏览器的非严格模式隐式全局，而拼接产物带 ESM 语义即严格模式，给未声明变量赋值会直接抛 ReferenceError。完整名单由 tsc 对生成产物跑 checkJs 得到（Cannot find name）：State、_、Engine、oldIE、Enemies（script/events/executioner.js 第 1 行的 Enemies = window.Enemies ?? {}）、swipeElement（engine.js 的 Engine.init()，boot 阶段即执行）、elem（notifications.js 的 Notify）、craftable 与 good（room.js / fabricator.js 事件处理函数跨作用域引用）、c2 与 c3（setpieces.js 剧情节点），以及上游以 typeof 守卫探测的 define、ga、langs。缺失时的表现是「一打开视图就报 X is not defined」。",
+			"effect": "在拼接作用域顶部把这批符号显式预声明为局部变量，使这些赋值落在隔离作用域内 —— 既不抛错，也不污染 Obsidian 的 window。"
+		},
+		{
+			"id": "remove-location-redirects",
+			"target": "script/engine.js",
+			"reason": "Engine.init() 在浏览器能力或移动端检测不通过时执行 window.location = 'browserWarning.html' / 'mobileWarning.html'。在 Obsidian 里这会让整个应用窗口跳转到不存在的页面。",
+			"effect": "构建期移除这两处跳转（被排除的两个 html 也不随包分发）。"
+		},
+		{
+			"id": "redirect-body-selectors",
+			"target": "script/engine.js, script/events.js, script/space.js",
+			"reason": "两类写法都会落到 Obsidian 自身的 body 上：① `$('body')` —— 键盘事件绑定（engine.js:204-205）、太空过场全屏背景变色（space.js 多处）、事件聚焦（events.js:1434）；② 把 'body' 当方法参数传入的 `appendTo('body')` —— engine.js:120 用它建**主菜单**（重启 / 熄灯 / 分享 / 存档 / github …），space.js:292/464/517 用它建 #starsContainer 与两处太空过场元素。②这类写法会同时造成两个后果：元素跑到根容器之外、且失去 #darkroom-root 前缀的样式，于是整条主菜单不可见。",
+			"effect": "把 `$('body')` 与 `appendTo('body')` / `prependTo('body')` 一并重定向到游戏根容器，使键盘绑定、背景动画与主菜单都留在游戏视图内、并获得正确的样式作用域。"
+		},
+		{
+			"id": "disable-autoboot",
+			"target": "script/engine.js",
+			"reason": "文件尾部有 `$(function() { Engine.init(); });` 自启动。",
+			"effect": "移除该自启动，改由插件在视图创建后显式调用导出的 boot()，以便控制启动时机与生命周期。"
+		},
+		{
+			"id": "drop-menu-entries",
+			"target": "script/engine.js",
+			"reason": "主菜单里的三项在本移植中没有意义：应用商店（引导下载手机 App）、分享（外链社交）、夜间模式（改为跟随 Obsidian 的深/浅色设置，不再由游戏内手动切换）。",
+			"effect": "按「$('<span>') … .appendTo(menu);」的块形状匹配，用块内文案判定并整块删除这三项；Engine.getApp / Engine.share / Engine.turnLightsOff 函数本身保留（turnLightsOff 仍被启动逻辑与主题同步使用）。"
+		},
+		{
+			"id": "audio-engine-stub",
+			"target": "script/audio.js (excluded)",
+			"reason": "音频文件不随包分发。",
+			"effect": "注入与上游 API 表面对齐的 no-op AudioEngine（init / isAudioContextRunning / tryResumingAudioContext / playBackgroundMusic / playEventMusic / stopEventMusic / playSound / loadAudioFile / setBackgroundMusicVolume / setMasterVolume 及内部字段），使 150 余处调用点原样工作且不产生任何网络或音频请求。"
+		},
+		{
+			"id": "storage-bridge",
+			"target": "all scripts",
+			"reason": "上游用裸 localStorage 读写 localStorage.gameState / localStorage.lang，并调用 localStorage.clear()。",
+			"effect": "在拼接作用域内以局部 localStorage 变量遮蔽全局，转发到插件持久层，使存档落在 vault 内（随同步）而非 Electron 的浏览器存储。"
+		},
+		{
+			"id": "scope-css",
+			"target": "css/**, lang/zh_cn/main.css",
+			"reason": "上游样式大量使用 id 选择器（#room、#outside、#buildings、#world 等）与通用规则，直接注入会污染 Obsidian 界面，反之亦然。",
+			"effect": "构建期为每条选择器加上游戏根容器前缀（#darkroom-root）后输出到插件 styles.css。需特别处理三类：① body / html 选择器改写到根容器本身 —— 含 body.noMask 这种，而 space.js 正好会给根容器加 noMask 类，太空过场的黑白反转因此得以保留；② ::selection / ::-moz-selection 这类无选择器规则改写为后代选择器；③ @keyframes exploding / spin 重命名加前缀，避免与 Obsidian 或其它插件的同名动画互相覆盖。"
+		}
+	],
+
+	"modificationsSummary": "本插件对 A Dark Room 的全部改动都发生在构建时，作用于生成物 src/game/generated/adr.runtime.js 与 styles.css；src/game/upstream/ 下的原始文件保持逐字节不变，且随本仓库一同分发，对应 MPL-2.0 §3.2 的源码可得性要求。上述每个改动都在 buildTimeTransforms 中逐条登记。"
+}

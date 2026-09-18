@@ -1,0 +1,10 @@
+{
+	"id": "darkroom",
+	"name": "Darkroom",
+	"version": "0.1.0",
+	"minAppVersion": "1.4.0",
+	"description": "Play A Dark Room, a minimalist text adventure, right inside your vault. Ported from the original open-source game by Doublespeak Games (MPL-2.0).",
+	"author": "ConsonanceTrad",
+	"authorUrl": "https://github.com/ConsonanceTrad",
+	"isDesktopOnly": false
+}

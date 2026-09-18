@@ -1,0 +1,1543 @@
+/*
+ * 自动生成，请勿手工编辑 —— 生成器：scripts/scope-css.mjs
+ *
+ * 本文件包含 A Dark Room 的样式表，采用 Mozilla Public License 2.0，
+ * 版权归 Michael Townsend / Doublespeak Games 所有。
+ *   上游仓库：https://github.com/doublespeakgames/adarkroom
+ *   许可全文：LICENSE-ADARKROOM.md
+ *   来源与改动：THIRD_PARTY_NOTICES.md
+ *
+ * 上游全部选择器都已在构建期被加上 #darkroom-root 前缀（夜间模式用
+ * #darkroom-root.darkenLights），因此不会泄漏到 Obsidian 界面。
+ */
+
+/* ============ upstream css/main.css ============ */
+/* Fonts */
+
+#darkroom-root, #darkroom-root .tooltip, #darkroom-root select.menuBtn {
+	font-family: "Times New Roman", Times, serif;
+	font-size: 16px;
+	font-weight: normal;
+	line-height: normal;
+	letter-spacing: normal;
+}
+
+#darkroom-root {
+	height: 100%;
+}
+
+#darkroom-root {
+	height: 100%;
+	margin: 0;
+}
+
+#darkroom-root ::selection {
+	background-color: transparent;
+}
+
+#darkroom-root ::-moz-selection {
+	background-color: transparent;
+}
+
+#darkroom-root #description textarea::selection {
+	background-color: gray;
+}
+
+#darkroom-root #description textarea::-moz-selection {
+	background-color: gray;
+}
+
+/* Framework stuff */
+
+#darkroom-root div.clear {
+	clear: both;
+}
+
+#darkroom-root div#wrapper {
+	margin: auto;
+	width: 700px;
+	padding: 20px 0 0 220px;
+	position: relative;
+}
+
+#darkroom-root div#saveNotify {
+	position: fixed;
+	top: 10px;
+	right: 20px;
+	background: white;
+	opacity: 0;
+}
+
+#darkroom-root div#content {
+	position: relative;
+	overflow: hidden;
+	height: 700px;
+}
+
+#darkroom-root div#header {
+	padding-bottom: 20px;
+	height: 20px;
+}
+
+#darkroom-root .logo {
+  position: fixed;
+  left: 10px;
+  bottom: 0;
+  z-index: 10;
+}
+
+#darkroom-root .logo-icon {
+  height: 40px;
+}
+
+#darkroom-root .logo-icon > path {
+  stroke: black;
+}
+
+#darkroom-root .menu {
+	position: fixed;
+	right: 10px;
+	bottom: 10px;
+	color: #666;
+	z-index: 10;
+}
+
+#darkroom-root .menu span {
+	cursor: pointer;
+	float: right;
+	margin-left: 20px;
+}
+
+#darkroom-root .customSelect {
+	height: 20px;
+}
+
+#darkroom-root span.customSelectOptions {
+	margin: 0;
+	width: 120px;
+}
+
+#darkroom-root .customSelectOptions > ul {
+	max-height: 20px;
+	width: 120px;
+	overflow: hidden;
+	-webkit-transition: max-height 1s;
+	transition: max-height 1s;
+	padding: 0;
+	margin: 0;
+	bottom: 0;
+	position: absolute;
+	right: 0;
+}
+
+#darkroom-root .customSelectOptions > ul:hover {
+	max-height: 600px;
+}
+
+#darkroom-root .customSelectOptions > ul > li {
+	padding: 0 0 3px 0;
+	list-style-type: none;
+	height: 20px;
+}
+
+#darkroom-root .customSelectOptions > ul > li:last-child {
+	padding: 0;
+}
+
+#darkroom-root .customSelectOptions > ul > li:hover {
+	text-decoration: underline;
+}
+
+#darkroom-root .customSelectOptions > ul > li:first-child:hover {
+	cursor: default;
+	text-decoration: none;
+}
+
+#darkroom-root .menu span:hover {
+	text-decoration: underline;
+}
+
+#darkroom-root .menu .appStore {
+	font-weight: bold;
+}
+
+#darkroom-root div.headerButton {
+	font-size: 17px;
+	cursor: pointer;
+	float: left;
+	border-left: 1px solid black;
+	margin-left: 10px;
+	padding-left: 10px;
+}
+
+#darkroom-root div.headerButton:hover {
+	text-decoration: underline;
+}
+
+#darkroom-root div.headerButton:first-child {
+	border-left: none;
+	margin-left: 0px;
+	padding-left: 0px;
+}
+
+#darkroom-root div.headerButton.selected, #darkroom-root div.headerButton.selected:hover {
+	cursor: default;
+	text-decoration: underline;
+}
+
+#darkroom-root div#outerSlider {
+	position: absolute;
+}
+
+#darkroom-root div#outerSlider > div {
+	position: relative;
+	float: left;
+	width: 700px;
+	height: 700px;
+	overflow: hidden;
+}
+
+#darkroom-root div#locationSlider {
+	position: absolute;
+}
+
+#darkroom-root div.location {
+	position: relative;
+	float: left;
+	width: 700px;
+}
+
+#darkroom-root div.row_key {
+	clear: both;
+	float: left;
+}
+
+#darkroom-root div.row_val {
+	float: right;
+}
+
+#darkroom-root div.total {
+	font-weight: bold;
+}
+
+/* Notifications */
+
+#darkroom-root div#notifications {
+	position: absolute;
+	top: 20px;
+	left: 0px;
+	height: 700px;
+	width: 200px;
+	overflow: hidden;
+}
+
+#darkroom-root div#notifications div.notification {
+	margin-bottom: 10px;
+}
+
+#darkroom-root div#notifyGradient {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	height: 100%;
+	width: 100%;
+	background-color: white;
+	background: -webkit-linear-gradient(
+		rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%
+	);
+	background: linear-gradient(
+		rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%
+	);
+	filter: alpha(
+		Opacity=0, FinishOpacity=100, Style=1, StartX=0, StartY=0, FinishX=0, FinishY=500
+	);
+}
+
+/* Button */
+
+#darkroom-root div.button {
+	position: relative;
+	text-align: center;
+	border: 1px solid black;
+	width: 100px;
+	margin-bottom: 5px;
+	padding: 5px 10px;
+	cursor: pointer;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+#darkroom-root div.button:hover {
+	text-decoration: underline;
+}
+
+#darkroom-root div.button.disabled, #darkroom-root div.button.disabled:hover {
+	cursor: default;
+	border-color: #b2b2b2;
+	color: #b2b2b2;
+	text-decoration: none;
+}
+
+#darkroom-root div.button div.cooldown {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: -1;
+	height: 100%;
+	background-color: #DDDDDD;
+}
+
+/* Up/Down buttons. They're complicated! */
+
+#darkroom-root .upBtn, #darkroom-root .dnBtn, #darkroom-root .upManyBtn, #darkroom-root .dnManyBtn {
+	position: absolute;
+	width: 14px;
+	height: 12px;
+	cursor: pointer;
+}
+
+#darkroom-root .upBtn, #darkroom-root .dnBtn {
+	right: 0px;
+}
+
+#darkroom-root .upManyBtn, #darkroom-root .dnManyBtn {
+	right: -15px;
+}
+
+#darkroom-root .upBtn.disabled, #darkroom-root .dnBtn.disabled, #darkroom-root .upManyBtn.disabled, #darkroom-root .dnManyBtn.disabled {
+	cursor: default;
+}
+
+#darkroom-root .upBtn {
+	top: -3px;
+}
+
+#darkroom-root .upManyBtn {
+	top: -3px;
+}
+
+#darkroom-root .upBtn:after, #darkroom-root .upBtn:before, #darkroom-root .upManyBtn:after, #darkroom-root .upManyBtn:before {
+	position: absolute;
+	border: medium solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	bottom: 2px;
+}
+
+#darkroom-root .upBtn:after, #darkroom-root .upManyBtn:after {
+	border-color: transparent transparent white;
+}
+
+#darkroom-root .upBtn:before, #darkroom-root .upManyBtn:before {
+	border-color: transparent transparent black;
+}
+
+#darkroom-root .upBtn.disabled:before, #darkroom-root .upManyBtn.disabled:before {
+	border-color: transparent transparent #999;
+}
+
+#darkroom-root .dnBtn {
+	bottom: -3px;
+}
+
+#darkroom-root .dnManyBtn {
+	bottom: -3px;
+}
+
+#darkroom-root .dnBtn:after, #darkroom-root .dnBtn:before, #darkroom-root .dnManyBtn:after, #darkroom-root .dnManyBtn:before {
+	position: absolute;
+	border: medium solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	top: 2px;
+}
+
+/* Overall size of buttons controlled by this style
+   border-width and margin-left should be the same. */
+
+#darkroom-root .upBtn:before, #darkroom-root .dnBtn:before, #darkroom-root .upManyBtn:before, #darkroom-root .dnManyBtn:before {
+	border-width: 6px;
+	left: 50%;
+	margin-left: -6px;
+}
+
+/* Thickness of up/down button lines controlled by this style.
+   border-width and margin-left should be the same.
+   Thickness = :before.border-width minus :after.border-width */
+
+#darkroom-root .upBtn:after, #darkroom-root .dnBtn:after {
+	border-width: 4px;
+	left: 50%;
+	margin-left: -4px;
+}
+
+/* See comment on .upBtn:after, .dnBtn:after */
+
+#darkroom-root .upManyBtn:after, #darkroom-root .dnManyBtn:after {
+	border-width: 3px;
+	left: 50%;
+	margin-left: -3px;
+}
+
+#darkroom-root .dnBtn:after, #darkroom-root .dnManyBtn:after {
+	border-color: white transparent transparent;
+}
+
+#darkroom-root .dnBtn:before, #darkroom-root .dnManyBtn:before {
+	border-color: black transparent transparent;
+}
+
+#darkroom-root .dnBtn.disabled:before, #darkroom-root .dnManyBtn.disabled:before {
+	border-color: #999 transparent transparent;
+}
+
+#darkroom-root div.button div.tooltip {
+	width: 100px;
+}
+
+/* Tooltip */
+
+#darkroom-root div.tooltip {
+	display: none;
+	padding: 2px 5px;
+	border: 1px solid black;
+	position: absolute;
+	box-shadow: -1px 3px 2px #666;
+	background: white;
+	z-index: 999;
+}
+
+#darkroom-root .tooltip.bottom {
+	top: 30px;
+}
+
+#darkroom-root .tooltip.right {
+	left: 2px;
+}
+
+#darkroom-root .tooltip.left {
+	right: 0px;
+}
+
+#darkroom-root .tooltip.top {
+	bottom: 20px;
+}
+
+#darkroom-root *:hover > div.tooltip {
+	display: block;
+}
+
+#darkroom-root div.tooltip:hover {
+	display: none !important;
+}
+
+#darkroom-root .disabled:hover > div.tooltip, #darkroom-root .button.free:hover > div.tooltip {
+	display: none;
+}
+
+#darkroom-root #event .button.disabled:hover > div.tooltip {
+	display: block;
+}
+
+/* Events */
+
+#darkroom-root .eventPanel {
+	background: none repeat scroll 0 0 white;
+	border: 2px solid transparent;
+	left: 250px;
+	padding: 20px;
+	position: absolute;
+	top: 90px;
+	width: 335px;
+	z-index: 20;
+}
+
+#darkroom-root.noMask .eventPanel {
+	background-color: black;
+}
+
+#darkroom-root .eventPanel:before {
+	background-color:white;
+	opacity: 0.6;
+	content: " ";
+	height: 700px;
+	left: -252px;
+	position: absolute;
+	top: -75px;
+	width: 920px;
+	z-index: -2;
+}
+
+#darkroom-root.noMask .eventPanel:before {
+	opacity: 0;
+}
+
+#darkroom-root .eventPanel:after {
+	position: absolute;
+	top: -2px;
+	left: -2px;
+	width: 100%;
+	height: 100%;
+	content: " ";
+	border: 2px solid black;
+	box-shadow: 5px 5px 5px #666666;
+	z-index: -2;
+}
+
+#darkroom-root.noMask .eventPanel:after {
+	border-color: white;
+}
+
+#darkroom-root .eventPanel .button {
+	float:left;
+	margin-right: 20px;
+}
+
+#darkroom-root.noMask .eventPanel .button {
+	border-color: white;
+	color: white;
+}
+
+#darkroom-root .eventTitle {
+	display: inline-block;
+	font-weight: bold;
+	position: absolute;
+	top: -12px;
+}
+
+#darkroom-root.noMask .eventTitle {
+	color: white;
+}
+
+#darkroom-root .eventTitle:after {
+	background-color: white;
+	bottom: 32%;
+	content: " ";
+	height: 5px;
+	left: 0;
+	position: absolute;
+	width: 100%;
+	z-index: -1;
+}
+
+#darkroom-root.noMask .eventTitle:after {
+	background-color: black;
+}
+
+#darkroom-root #description {
+	position: relative;
+	min-height: 100px;
+}
+
+#darkroom-root #description textarea {
+	width: 100%;
+	height: 225px;
+}
+
+#darkroom-root.noMask #description {
+	color: white;
+}
+
+#darkroom-root #description > div {
+	padding-bottom: 20px;
+}
+
+#darkroom-root .take-all-button {
+	float: none;
+}
+
+#darkroom-root #buttons > .button {
+	margin: 0 5px 5px;
+	margin-right: 15px;
+}
+
+/* Combat! */
+
+#darkroom-root #description div.fighter {
+	padding: 0px;
+	position: absolute;
+	bottom: 15px;
+}
+
+#darkroom-root #wanderer {
+	left: 25%;
+}
+
+#darkroom-root #enemy {
+	right: 25%;
+}
+
+#darkroom-root .hp {
+	position: absolute;
+	top: -15px;
+	margin-left: -50%;
+}
+
+#darkroom-root .fighter.shield > .label::before {
+	content: '(';
+	position: absolute;
+	left: -8px;
+}
+
+#darkroom-root .fighter.shield > .label::after {
+	content: ')';
+	position: absolute;
+	right: -8px;
+}
+
+#darkroom-root .fighter.energised > .label {
+	font-size: 2em;
+	font-style: bold;
+}
+
+#darkroom-root .fighter.meditation > .label {
+	font-size: 1.5em;
+	opacity: 0.3;
+}
+
+@keyframes darkroom-exploding {
+	0% { transform: translate(0, 0); }
+	25% { transform: translate(-10px, 0); }
+	75% { transform: translate(10px, 0); }
+	100% { transform: translate(0, 0); }
+}
+
+#darkroom-root .fighter.exploding > .label {
+	animation: darkroom-exploding 200ms linear infinite;
+}
+
+#darkroom-root .fighter.venomous > .label {
+	font-size: 1.5em;
+	font-style: bold;
+}
+
+#darkroom-root .fighter.enraged > .label {
+	font-size: 1.5em;
+	font-style: italic;
+}
+
+#darkroom-root .fighter.boost > .label {
+	font-style: italic;
+}
+
+#darkroom-root #description .bullet {
+	padding: 0px 20px 0px 20px;
+	bottom: 25px;
+	position: absolute;
+	height: 1px;
+	line-height: 1px;
+}
+
+#darkroom-root .damageText {
+	position: absolute;
+	bottom: 15px;
+	left: 50%;
+	margin-left: -50%;
+}
+
+#darkroom-root #lootButtons {
+	padding-bottom: 0px !important;
+	margin: 20px 0 5px 0;
+	position: relative;
+}
+
+#darkroom-root #lootButtons:before {
+	content: attr(data-legend);
+	position: absolute;
+	top: -25px;
+	left: 0px;
+}
+
+#darkroom-root #dropMenu {
+	background: none repeat scroll 0 0 white;
+	border: 1px solid black;
+	position: absolute;
+	z-index: 100;
+	padding-top: 5px;
+	text-align: left;
+	box-shadow: -1px 3px 2px #666;
+	cursor: default;
+}
+
+#darkroom-root #dropMenu:before {
+	content: attr(data-legend);
+	border-bottom: 1px solid black;
+	display: block;
+	margin-bottom: 5px;
+	padding: 0px 0px 5px 5px;
+}
+
+#darkroom-root #dropMenu > div {
+	padding: 0px 5px 5px 5px;
+	cursor: pointer;
+}
+
+#darkroom-root #dropMenu > div:hover {
+	text-decoration: underline;
+}
+
+/* ============ upstream css/room.css ============ */
+#darkroom-root div#buildBtns {
+	position: absolute;
+	top: 50px;
+	left: 0px;
+}
+
+#darkroom-root div#buildBtns:before, #darkroom-root div#craftBtns:before, #darkroom-root div#buyBtns:before {
+	content: attr(data-legend);
+	position: relative;
+	top: -5px;
+}
+
+#darkroom-root div#craftBtns {
+	position: absolute;
+	top: 50px;
+	left: 150px;
+}
+
+#darkroom-root div#buyBtns {
+	position: absolute;
+	top: 50px;
+	left: 300px;
+}
+
+#darkroom-root div#storesContainer {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+}
+
+#darkroom-root div#stores:before, #darkroom-root div#weapons:before {
+	position: absolute;
+	background: white;
+	content: attr(data-legend);
+	left: 8px;
+	top: -13px;
+}
+
+#darkroom-root div#stores {
+	position: relative;
+	z-index:10;
+	border: 1px solid black;
+	cursor: default;
+	padding: 5px 10px;
+	width: 200px;
+}
+
+#darkroom-root div.storeRow {
+	position: relative;
+}
+
+#darkroom-root div#weapons {
+	margin-top: 15px;
+	position: relative;
+	right: 0px;
+	border: 1px solid black;
+	cursor: default;
+	padding: 5px 10px;
+	width: 200px;
+}
+
+/* ============ upstream css/outside.css ============ */
+#darkroom-root div#village {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	border: 1px solid black;
+	cursor: default;
+	padding: 5px 10px;
+	width: 200px;
+}
+
+#darkroom-root div#population {
+	position: absolute;
+	top: -13px;
+	right: 10px;
+	background-color: white;
+}
+
+#darkroom-root .noHuts #population {
+	display: none;
+}
+
+#darkroom-root div#village:before {
+	position: absolute;
+	background: white;
+	content: attr(data-legend);
+	left: 8px;
+	top: -13px;
+}
+
+#darkroom-root div#workers {
+	position:absolute;
+	top: -4px;
+	left: 160px;
+	width: 150px;
+}
+
+#darkroom-root .workerRow > .row_val {
+	position: relative;
+	padding-right: 20px;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+#darkroom-root .workerRow {
+	position: relative;
+	margin: 10px 0px;
+	cursor: default;
+}
+
+#darkroom-root .workerRow .tooltip {
+	width: 150px;
+}
+
+#darkroom-root div.storeRow div.tooltip {
+	width: 160px;
+}
+
+/* ============ upstream css/path.css ============ */
+#darkroom-root #outfitting {
+	position: relative;
+	border: 1px solid black;
+	width: 200px;
+	margin-bottom: 20px;
+	padding: 5px 10px;
+}
+
+#darkroom-root div#outfitting:before, #darkroom-root div#perks:before {
+	content: attr(data-legend);
+	position: absolute;
+	top: -13px;
+	background-color: white;
+}
+
+#darkroom-root div.outfitRow {
+	position: relative;
+	cursor: default;
+	margin: 10px -30px 10px 0px;
+}
+
+#darkroom-root div.outfitRow > .row_val {
+	padding-right: 30px;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+#darkroom-root div.outfitRow .tooltip {
+	width: 150px;
+}
+
+#darkroom-root div#bagspace {
+	background-color: white;
+	position: absolute;
+	top:-13px;
+	right: 10px;
+}
+
+#darkroom-root div#perks {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	border: 1px solid black;
+	cursor: default;
+	padding: 5px 10px;
+	width: 200px;
+}
+
+#darkroom-root div.perkRow {
+	position: relative;
+}
+
+#darkroom-root div.perkRow .row_key {
+	float: none;
+}
+
+#darkroom-root #pathScroller {
+	padding-top: 10px;
+	position: relative;
+	top: -10px;
+	max-height: 660px;
+	width: 475px;
+	overflow-y: auto;
+}
+
+/* ============ upstream css/world.css ============ */
+#darkroom-root #worldOuter {
+	position: relative;
+	display: inline-block;
+}
+
+#darkroom-root #map {
+	position: relative;
+	font-family: "Courier New", Courier, monospace;
+	border: 1px solid black;
+	overflow: hidden;
+	display: inline-block;
+	line-height: 10px;
+	letter-spacing: 1px;
+	color: #999;
+	cursor: default;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+#darkroom-root #map .landmark {
+	position: relative;
+	font-weight: bold;
+	color: black;
+	line-height: 0px; /* Hack to prevent the boldness from increasing the row's line-height. I hope it works in all browsers... */
+}
+
+#darkroom-root #bagspace-world {
+	border: 1px solid black;
+	height: 62px;
+	margin-bottom: 5px;
+	margin-top: 13px;
+	overflow: hidden;
+}
+
+#darkroom-root #bagspace-world > div {
+	padding: 6px 4px;
+}
+
+#darkroom-root #backpackTitle {
+	position: absolute;
+	top: 0px;
+	left: 10px;
+	background-color: white;
+	z-index: 1;
+}
+
+#darkroom-root #backpackSpace {
+	position: absolute;
+	top: 0px;
+	right: 10px;
+	background-color: white;
+	z-index: 1;
+}
+
+#darkroom-root #healthCounter {
+	position: absolute;
+	top: 0px;
+	left: 80px;
+	background-color: white;
+	z-index: 1;
+}
+
+#darkroom-root div.supplyItem {
+	display: inline-block;
+	border: 1px solid #999;
+	float: left;
+	margin: 0px 5px 6px 0px;
+	padding: 0 5px;
+	cursor: default;
+}
+
+/* ============ upstream css/ship.css ============ */
+#darkroom-root div#hullRow {
+	width: 70px;
+}
+
+#darkroom-root div#engineRow {
+	width: 70px;
+	margin-bottom: 20px;
+}
+
+/* ============ upstream css/space.css ============ */
+@-ms-keyframes darkroom-spin {
+	0% { 
+		-ms-transform: rotate(0deg);
+		-webkit-transform: rotate(0deg); 
+		-moz-transform: rotate(0deg);
+		transform:rotate(0deg); 
+	}
+	100% { 
+		-ms-transform: rotate(360deg); 
+		-webkit-transform: rotate(360deg); 
+		-moz-transform: rotate(360deg);
+		transform:rotate(360deg); 
+	}
+}
+
+@-webkit-keyframes darkroom-spin {
+	0% { 
+		-ms-transform: rotate(0deg);
+		-webkit-transform: rotate(0deg); 
+		-moz-transform: rotate(0deg);
+		transform:rotate(0deg); 
+	}
+	100% { 
+		-ms-transform: rotate(360deg); 
+		-webkit-transform: rotate(360deg); 
+		-moz-transform: rotate(360deg);
+		transform:rotate(360deg); 
+	}
+}
+
+@-moz-keyframes darkroom-spin {
+	0% { 
+		-ms-transform: rotate(0deg);
+		-webkit-transform: rotate(0deg); 
+		-moz-transform: rotate(0deg);
+		transform:rotate(0deg); 
+	}
+	100% { 
+		-ms-transform: rotate(360deg); 
+		-webkit-transform: rotate(360deg); 
+		-moz-transform: rotate(360deg);
+		transform:rotate(360deg); 
+	}
+}
+
+@keyframes darkroom-spin {
+	0% { 
+		-ms-transform: rotate(0deg);
+		-webkit-transform: rotate(0deg); 
+		-moz-transform: rotate(0deg);
+		transform:rotate(0deg); 
+	}
+	100% { 
+		-ms-transform: rotate(360deg); 
+		-webkit-transform: rotate(360deg); 
+		-moz-transform: rotate(360deg);
+		transform:rotate(360deg); 
+	}
+}
+
+#darkroom-root #spacePanel {
+	float: none !important;
+	position: absolute !important;
+	top: -700px;
+	left: 0px;
+}
+
+#darkroom-root #starsContainer {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	overflow: hidden;
+}
+
+#darkroom-root #stars, #darkroom-root #starsBack {
+	position: absolute;
+	z-index: -1;
+	left: 0px;
+}
+
+#darkroom-root #stars > div, #darkroom-root #starsBack > div {
+	position: relative;
+	height: 3000px;
+	width: 3000px;
+	color: white;
+}
+
+#darkroom-root #starsBack {
+	opacity: 0.5;
+}
+
+#darkroom-root .star {
+	position: absolute;
+}
+
+#darkroom-root #ship {
+	cursor: default;
+	position: absolute;
+	margin-top: -10px;
+	margin-left: -7.5px;
+}
+
+#darkroom-root #theEnd {
+	position: relative;
+	cursor: default;
+	top: 200px;
+	margin-left: -220px;
+	text-align: center;
+	font-size: 24px;
+	font-weight: bold;
+	opacity: 0;
+	color: white;
+}
+
+#darkroom-root .asteroid {
+	cursor: default;
+	position: absolute;
+	top: -40px;
+	left: 350px;
+	-webkit-animation: 1s linear 0s normal none infinite darkroom-spin;
+	-moz-animation: 1s linear 0s normal none infinite darkroom-spin;
+	-ms-animation: 1s linear 0s normal none infinite darkroom-spin;
+	animation: 1s linear 0s normal none infinite darkroom-spin;
+	font-size: 32px;
+}
+
+#darkroom-root #hullRemaining {
+	width: 70px;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+#darkroom-root .centerCont {
+	padding-top:10%;
+}
+
+#darkroom-root .outroContainer {
+	padding-top:10%;
+	width: 800px;
+	margin: 0 auto;
+}
+
+#darkroom-root .outro {
+	font-size: 1.5rem;
+	color: #FFF;
+	opacity: 0;
+	margin-bottom: 40px;
+}
+
+#darkroom-root .endGame {
+	font-size:48px;
+	color:#FFFFFF;
+	opacity:0;
+	position:relative;
+}
+
+#darkroom-root .endGameOption {
+	font-size: 32px;
+	cursor: pointer;
+}
+
+#darkroom-root .endGameOption:hover {
+	text-decoration: underline;
+}
+
+#darkroom-root #wait-btn {
+	border-color: #fff;
+	color: #fff;
+	margin: 0 auto;
+	opacity: 0;
+}
+
+/* ============ upstream css/fabricator.css ============ */
+#darkroom-root div#fabricateButtons {
+  position: relative;
+  top: 5px;
+	left: 0;
+}
+
+#darkroom-root div#fabricateButtons::before {
+	content: attr(data-legend);
+	position: relative;
+	top: -5px;
+}
+
+#darkroom-root div#blueprints::before {
+  content: attr(data-legend);
+	position: absolute;
+	top: -13px;
+	background-color: white;
+}
+
+#darkroom-root div#blueprints {
+	position: absolute;
+	top: 0px;
+	right: 237px;
+	border: 1px solid black;
+	cursor: default;
+	padding: 5px 10px;
+	width: 200px;
+}
+
+#darkroom-root div.blueprintRow {
+	position: relative;
+}
+
+#darkroom-root div.blueprintRow .row_key {
+	float: none;
+}
+
+/* ============ upstream lang/zh_cn/main.css ============ */
+#darkroom-root .button {width: 100px !important;}
+
+#darkroom-root #outsidePanel .button {width: 115px !important;}
+
+#darkroom-root .eventPanel .button {width: 122px !important;}
+
+/* ============ upstream css/dark.css（夜间模式，由根容器上的 darkenLights 类控制）============ */
+#darkroom-root.darkenLights {
+	background-color: #272823;
+	color: #EEE;
+}
+
+#darkroom-root.darkenLights div.headerButton {
+	border-left: 1px solid #EEE;
+}
+
+#darkroom-root.darkenLights div#notifyGradient {
+	background-color: #272823;
+	background: -webkit-linear-gradient( rgba(39, 40, 35, 0) 0%, rgba(39, 40, 35, 1) 100% );
+	background: linear-gradient( rgba(39, 40, 35, 0) 0%, rgba(39, 40, 35, 1) 100% );
+	filter: alpha( Opacity=0, FinishOpacity=100, Style=1, StartX=0, StartY=0, FinishX=0, FinishY=500 );
+}
+
+#darkroom-root.darkenLights div#saveNotify {
+	background: #272823;
+}
+
+#darkroom-root.darkenLights .eventPanel:before {
+	background-color: #272823;
+}
+
+#darkroom-root.darkenLights .eventTitle:after {
+	background-color: #272823;
+}
+
+#darkroom-root.darkenLights div.tooltip {
+	background-color: #171813;
+	border: 1px solid black;
+	box-shadow: -1px 3px 2px #111;
+}
+
+#darkroom-root.darkenLights div#population {
+	background-color: #272823;
+}
+
+#darkroom-root.darkenLights div#village:before {
+	background: #272823;
+}
+
+#darkroom-root.darkenLights div#village {
+	border: 1px solid #EEE;
+}
+
+#darkroom-root.darkenLights div#stores:before {
+	background: #272823;
+}
+
+#darkroom-root.darkenLights div#stores {
+	border: 1px solid #EEE;
+}
+
+#darkroom-root.darkenLights div#blueprints:before {
+	background: #272823;
+}
+
+#darkroom-root.darkenLights div#blueprints {
+	border: 1px solid #EEE;
+}
+
+#darkroom-root.darkenLights div#weapons:before {
+	background: #272823;
+}
+
+#darkroom-root.darkenLights div#weapons {
+	border: 1px solid #EEE;
+}
+
+#darkroom-root.darkenLights div#bagspace {
+	background-color: #272823;
+}
+
+#darkroom-root.darkenLights div#outfitting:before {
+	background: #272823;
+}
+
+#darkroom-root.darkenLights div#perks {
+	border: 1px solid #EEE;
+}
+
+#darkroom-root.darkenLights div#perks:before {
+	background-color: #272823;
+}
+
+#darkroom-root.darkenLights div#outfitting {
+	border: 1px solid #EEE;
+}
+
+#darkroom-root.darkenLights #bagspace-world {
+	border: 1px solid #EEE;
+}
+
+#darkroom-root.darkenLights div.supplyItem {
+	border: 1px solid #EEE;
+}
+
+#darkroom-root.darkenLights #backpackTitle {
+	background-color: #272823;
+}
+
+#darkroom-root.darkenLights #backpackSpace {
+	background-color: #272823;
+}
+
+#darkroom-root.darkenLights #healthCounter {
+	background-color: #272823;
+}
+
+#darkroom-root.darkenLights #map {
+	border: 1px solid #EEE;
+}
+
+#darkroom-root.darkenLights #map .landmark {
+	color: #EEE;
+}
+
+#darkroom-root.darkenLights #dropMenu {
+	background: none repeat scroll 0 0 #272823;
+	box-shadow: -1px 3px 2px #111;
+}
+
+#darkroom-root.darkenLights div.button {
+	border: 1px solid #EEE;
+}
+
+#darkroom-root.darkenLights div.button.disabled, #darkroom-root.darkenLights div.button.disabled:hover {
+	border-color: #444;
+	color: #444;
+}
+
+#darkroom-root.darkenLights .upBtn:after, #darkroom-root.darkenLights .upManyBtn:after {
+	border-color: transparent transparent #272823;
+}
+
+#darkroom-root.darkenLights .upBtn:before, #darkroom-root.darkenLights .upManyBtn:before {
+	border-color: transparent transparent #EEE;
+}
+
+#darkroom-root.darkenLights .upBtn.disabled:before, #darkroom-root.darkenLights .upManyBtn.disabled:before {
+	border-color: transparent transparent #555;
+}
+
+#darkroom-root.darkenLights .dnBtn:after, #darkroom-root.darkenLights .dnManyBtn:after {
+	border-color: #272823 transparent transparent;
+}
+
+#darkroom-root.darkenLights .dnBtn:before, #darkroom-root.darkenLights .dnManyBtn:before {
+	border-color: #EEE transparent transparent;
+}
+
+#darkroom-root.darkenLights .dnBtn.disabled:before, #darkroom-root.darkenLights .dnManyBtn.disabled:before {
+	border-color: #555 transparent transparent;
+}
+
+#darkroom-root.darkenLights.noMask .eventTitle {
+	background-color: #EEE;
+	color: #272823;
+}
+
+#darkroom-root.darkenLights.noMask .eventTitle:after {
+	background-color: #EEE;
+}
+
+#darkroom-root.darkenLights.noMask .eventPanel {
+	background-color: #EEE;
+}
+
+#darkroom-root.darkenLights.noMask #description {
+	color: #272823;
+}
+
+#darkroom-root.darkenLights.noMask #buttons > .button {
+	border: 1px solid #272823;
+	color: #272823;
+}
+
+#darkroom-root.darkenLights #stars > div, #darkroom-root.darkenLights #starsBack > div {
+	color: black;
+}
+
+#darkroom-root.darkenLights .endGame, #darkroom-root.darkenLights .outro {
+	color:#272823;
+}
+
+#darkroom-root.darkenLights #wait-btn {
+	border-color: black;
+	color: black;
+}
+
+#darkroom-root.darkenLights #theEnd {
+	color: #272823;
+}
+
+#darkroom-root.darkenLights .logo-icon > path {
+  stroke: white;
+}
+
+/* ============ 本插件自身的样式（MIT）============ */
+/* 本插件自身的样式（非上游代码，MIT）。
+ *
+ * #darkroom-root 是游戏根容器 —— 上游的每一条选择器都已在构建期被加上这个前缀，
+ * 所以这里只需要处理它在 Obsidian 视图中的定位、滚动与底色。
+ *
+ * 上游布局的几点前提，这里都顺着它来：
+ *   - div#wrapper 是 margin:auto 的 700px 定宽块，左侧还留了 220px 内边距给通知栏；
+ *   - div#content 固定高 700px；
+ *   - 底色与文字色：**不自铺**任何底色，全部交给 Obsidian 主题（见下方 .darkroom-container
+ *     与 #darkroom-root.darkenLights 两条），这样换任何主题都能自然融合；
+ *     上游那些**元件**自带的深色值（#stores / .eventPanel / .tooltip 等）保持不动。 */
+
+/* ── 最关键的一条：box-sizing ──────────────────────────────────────────
+ *
+ * Obsidian 的全局样式把 box-sizing 设成了 border-box，而 A Dark Room 整套布局是按
+ * content-box 写的。最直接的受害者是 div#wrapper（main.css:41）：
+ *
+ *     div#wrapper { width: 700px; padding: 20px 0 0 220px; }
+ *
+ * 上游语意是「内容 700px + 左侧 220px（留给通知栏）= 总宽 920px」；
+ * 在 border-box 下变成「总宽 700px、内容只剩 480px」。
+ *
+ * 于是 div#content 实测只有 480px 宽，而它又带着 overflow: hidden ——
+ * 靠 right:0 贴到包含块 #roomPanel（700px）右缘的库存栏 #storesContainer
+ * 落在 x=1016~1216，整块都在 #content 右边缘（1016+480 = 996）之外，被直接裁掉。
+ * 表现就是「右侧库存看不见」。把游戏子树恢复成 content-box，上游的尺寸假设才成立。 */
+#darkroom-root,
+#darkroom-root *,
+#darkroom-root *::before,
+#darkroom-root *::after {
+  box-sizing: content-box;
+}
+
+/* 游戏视图容器。
+ *
+ * 不铺自己的底色 —— 上游 ADR 的整页底色来自 body（浏览器默认白 + css/dark.css 的深色），
+ * 在这里我们把它交给 Obsidian 主题：浅色主题露出浅色、深色主题露出深色，
+ * 带色调的主题也不会被一层写死的白/黑盖住。文字颜色仍随主题走。 */
+.darkroom-container {
+  height: 100%;
+  overflow: auto;
+  color: #000000;
+}
+
+.theme-dark .darkroom-container {
+  color: #eee;
+}
+
+/* 上游 css/dark.css 的 `body { background-color: #272823; color: #EEE }` 经作用域化后
+ * 落在根容器上 —— 那是它自带的墨绿黑。这里只清掉**底色**，让主题背景透上来，
+ * 否则根容器内外会叠出两层色差（容器一层、根容器一层）。
+ * color 保留：深色主题下文字本来就该是浅色的。
+ * 注意 dark.css 里那些**元件**的深色值（#stores / .eventPanel / .tooltip / #saveNotify …）
+ * 一律不动，它们本来就该是深色。 */
+#darkroom-root.darkenLights {
+  background-color: transparent;
+}
+
+#darkroom-root {
+  position: relative;
+  /* 与 #wrapper 对应：内容 700 + 左侧内边距 220 = 920px。 */
+  width: 920px;
+  margin: 0 auto;
+}
+
+/* tooltip 的内容是两个浮动块：row_key（float:left; clear:both）与 row_val（float:right）。
+   上游只给三类 tooltip 指定了固定宽度（storeRow 160px / workerRow 150px / button 100px），
+   其余都是 position:absolute 且无宽度，宽度走 shrink-to-fit —— 而内容全是浮动元素时
+   这个收缩很容易算窄，row_val 于是被挤到第二行，提示框看起来就"歪"成上下两块。
+   给个下限兜住；已有 width 的规则不受影响。 */
+#darkroom-root div.tooltip {
+  min-width: 100px;
+}
+
+/* 游戏内提示条：上游用 #saveNotify 做"已保存"淡出动画，
+   它是 position:fixed 的，在 Obsidian 的可滚动视图里会跑到视口角落。
+   改为绝对定位，使其跟随根容器。 */
+#darkroom-root div#saveNotify {
+  position: absolute;
+}
+
+/* 游戏主菜单（sound on. / 加速 / 重启 / 保存 / github）。
+ *
+ * 上游是 div.menu { position: fixed; right: 10px; bottom: 10px }，靠兄弟规则
+ * .menu span { float: right } 把这一排文字横向排在右下角。收进 Obsidian 后要处理三处：
+ *
+ *   1. 定位：fixed 会贴到 Obsidian 窗口右下角而不是视图内，改成 absolute。
+ *   2. 类名撞车：Obsidian 自己也用 .menu 这个类（它的菜单容器），会带过来圆角、阴影、
+ *      底色等属性；我们的选择器特异性更高，显式收回这些外观即可。
+ *   3. 排布：改成 flex（下面用 order 显式定序）。注意 float 在 flex 容器里会被忽略，
+ *      所以上游那条 .menu span { float: right } 在这里不再起作用 —— 正好，
+ *      本来就要绕开它那套视觉倒序。 */
+#darkroom-root .menu {
+  position: absolute;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  height: auto;
+
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+
+/* 菜单项从左到右的顺序。
+ *
+ * 构建期删掉「应用商店 / 分享 / 夜间模式」之后，剩下的 DOM 顺序是：
+ *   1 volume(sound on.)   2 hyper(加速)   3 restart(重启)   4 save(保存)   5 github
+ * 上游的 float:right 会把它显示成倒序 —— 也就是 github 保存 重启 加速 sound on.
+ * （这正是我们先看到的样子）。下面按期望的顺序指定 order：
+ *   github  →  sound on.  →  加速  →  重启  →  保存
+ *
+ * 注意：这几条依赖「删除后只剩 5 项」这个前提。若之后启用语言菜单
+ * （engine.js 里 customSelect 排在这些项之前），它会成为 nth-child(1)，
+ * 这里要整体后移一位。 */
+#darkroom-root .menu > span:nth-child(1) { order: 2; } /* volume  —— sound on. */
+#darkroom-root .menu > span:nth-child(2) { order: 3; } /* hyper   —— 加速 */
+#darkroom-root .menu > span:nth-child(3) { order: 4; } /* restart —— 重启 */
+#darkroom-root .menu > span:nth-child(4) { order: 5; } /* save    —— 保存 */
+#darkroom-root .menu > span:nth-child(5) { order: 1; } /* github */
+
+#darkroom-root .logo {
+  position: absolute;
+}
+
+/* 按钮冷却条 —— 上游每个按钮都会 append 一个 div.cooldown，冷却条无处不在。
+ *
+ * 上游用 div.cooldown 的 z-index:-1 把它垫在按钮文字之下，这依赖两个前提：
+ * div.button 自身不是层叠上下文，且祖先链上没有人画底色（上游 body 只设了 height/margin，
+ * 整页底色其实是浏览器的默认白）。上游确实满足，所以浅灰条压在白底上看得见。
+ * 但在 Obsidian 视图里容器与根容器都可能被主题画出底色，这个 -1 会被压到它们之下 ——
+ * 于是所有按钮的冷却进度一起消失。让按钮自成层叠上下文，即可还原上游的层叠关系。 */
+#darkroom-root div.button {
+  isolation: isolate;
+}
+
+/* 但层叠上下文也把 tooltip 关进了按钮内 —— 上游的 tooltip 是 z-index:999，
+ * 原本能穿透按钮、排在所有 z-index:auto 的兄弟之上；隔离之后它只能参与按钮自身的
+ * 层叠层级，于是会被 DOM 顺序靠后的相邻按钮盖住（表现就是 tooltip 被截掉一块）。
+ * 悬浮时把按钮抬到兄弟之上，两个需求即可兼得。 */
+#darkroom-root div.button:hover {
+  z-index: 2;
+}
+
+/* 同一类问题的另一处：太空过场的星空。
+ * #stars / #starsBack 是 z-index:-1 的星点层，本意是垫在 #starsContainer 的内容之下；
+ * 而 #starsContainer 自身是 position:absolute + z-index:auto，并不构成层叠上下文，
+ * 于是这两个 -1 会一路穿透到容器底色之下。给它加隔离，把星点关回自己的容器里。 */
+#darkroom-root #starsContainer {
+  isolation: isolate;
+}
