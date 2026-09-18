@@ -31,11 +31,23 @@ Engine.turnLightsOff = function () {
 };
 
 /* --- 语言切换 -------------------------------------------------------------
- * 原实现改写 document.location.href（追加 ?lang=xx），会让整个 Obsidian 窗口重载。
- * 本移植仅提供简体中文，也没有语言菜单（lang/langs.js 未随包分发），故直接停用。 */
+ * 原实现改写 document.location.href（追加 ?lang=xx 后整页重载）—— 在 Obsidian 里
+ * 那会把整个应用窗口跳走。改为交给宿主：由它换翻译表并重建视图（重建前会先落盘）。
+ *
+ * 调用点在 engine.js:140 —— 右下角菜单里的语言条目点击时执行
+ *   Engine.switchLanguage(this)
+ * 其中 this 是那个 <li>，语言代码挂在它的 data-language 上。 */
 
-Engine.switchLanguage = function () {
-  /* [darkroom] 语言切换不可用 */
+Engine.switchLanguage = function (dom) {
+  var lang = dom && $(dom).data("language");
+  if (!lang) {
+    return;
+  }
+  try {
+    __darkroomHost.switchLanguage(lang);
+  } catch (e) {
+    /* 宿主侧的异常不应连累游戏 */
+  }
 };
 
 /* --- 里程碑埋点 -----------------------------------------------------------
@@ -64,6 +76,31 @@ Engine.import64 = function (string64) {
   var decoded = Base64.decode(cleaned);
   localStorage.gameState = decoded;
   __darkroomHost.importSave(decoded);
+};
+
+/* --- 重开游戏（清空存档） -------------------------------------------------
+ * 原实现末尾是 location.reload() —— 在浏览器里那是"重载页面"，
+ * 在 Obsidian 里却会重载**整个应用**。用户的感知就成了"重启 Obsidian"，
+ * 而不是"重开游戏"。上游本来就留了 noReload 参数（deleteSave(true) 即跳过 reload），
+ * 这里始终跳过，并把"存档已清空"这件事交给宿主：由它重建运行时，从一张白纸重新开始。
+ *
+ * 调用点：engine.js 的 confirmDelete() —— 菜单里的"重启"弹确认框，选"yes"后调
+ * Engine.deleteSave（无参，所以走的是 reload 分支，这正是问题所在）。
+ *
+ * 注意 localStorage 是 storage-shim.js 遮蔽过的那个：它的 clear() 只转发到
+ * __darkroomHost.clear()，不会碰 Obsidian 自己的 localStorage。 */
+Engine.deleteSave = function () {
+  if (typeof Storage != "undefined" && localStorage) {
+    var prestige = Prestige.get();
+    State = {};
+    localStorage.clear();
+    Prestige.set(prestige);
+  }
+  try {
+    __darkroomHost.saveCleared();
+  } catch (e) {
+    /* 宿主侧的异常不应连累游戏 */
+  }
 };
 
 /* --- 生命周期：计时器归属 -------------------------------------------------

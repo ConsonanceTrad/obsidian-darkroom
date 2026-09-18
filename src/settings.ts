@@ -1,83 +1,23 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
-import type DarkroomPlugin from "./main";
-
+/**
+ * 插件持久化设置。
+ *
+ * 这里**没有**设置面板 —— 语言跟原版一样在游戏内右下角菜单切换
+ * （由 main.ts 的 host.switchLanguage 写回）；「紧凑模式」则由游戏视图标题栏上的按钮
+ * 切换（见 DarkroomView 的 addAction）。其余状态都在游戏自己的存档里。
+ */
 export interface DarkroomSettings {
-  /** 打开游戏时放在右侧边栏，而不是主工作区的新标签页。 */
-  openInSidebar: boolean;
+  /** 界面语言代码。默认 "en" —— 即不套用任何翻译表，显示上游原文。 */
+  language: string;
+  /**
+   * 紧凑模式：把库存与信息流两块面板外移到 Obsidian 的左右侧边栏，让游戏本体
+   * 从 920px 收窄到 700px，避免视图较窄时两侧被裁。
+   *
+   * 默认关闭 —— 游戏本体始终留在主编辑区，这里只决定两块附属面板的归属。
+   */
+  compact: boolean;
 }
 
 export const DEFAULT_SETTINGS: DarkroomSettings = {
-  openInSidebar: false,
+  language: "en",
+  compact: false,
 };
-
-export class DarkroomSettingTab extends PluginSettingTab {
-  constructor(
-    app: App,
-    private readonly plugin: DarkroomPlugin
-  ) {
-    super(app, plugin);
-  }
-
-  display(): void {
-    const { containerEl } = this;
-    containerEl.empty();
-
-    new Setting(containerEl)
-      .setName("默认打开位置")
-      .setDesc("关闭时在主工作区新标签页打开；开启时放在右侧边栏。")
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.openInSidebar).onChange(async (value) => {
-          this.plugin.settings.openInSidebar = value;
-          await this.plugin.saveSettings();
-        })
-      );
-
-    this.renderAbout(containerEl);
-  }
-
-  /** 关于区块：把来源与许可直接放在设置面板里，而不只是躺在仓库文件中。 */
-  private renderAbout(containerEl: HTMLElement): void {
-    new Setting(containerEl).setName("关于").setHeading();
-
-    containerEl.createEl("p", {
-      text: "本插件是 A Dark Room 的 Obsidian 移植版，游戏本体并非本插件作者原创。",
-    });
-
-    const info = containerEl.createEl("table");
-    const rows: Array<[string, string]> = [
-      ["原作", "A Dark Room — A Minimalist Text Adventure"],
-      ["作者 / 版权", "Michael Townsend / Doublespeak Games"],
-      ["上游仓库", "https://github.com/doublespeakgames/adarkroom"],
-      ["固定提交", "1fada4620b6c66bd07bf15a3f1eb8223df8bc1d7（上游 v1.4）"],
-      ["原作许可", "Mozilla Public License 2.0 (MPL-2.0)"],
-      ["本插件代码", "MIT（仅适配层；不改变上游各文件的 MPL-2.0 状态）"],
-    ];
-    for (const [key, value] of rows) {
-      const tr = info.createEl("tr");
-      tr.createEl("th", { text: key });
-      tr.createEl("td", { text: value });
-    }
-
-    containerEl.createEl("p", {
-      text: "上游源码随本插件仓库完整分发于 src/game/upstream/，且逐字节未作修改；本移植对原作的全部改动都发生在构建期，并逐条登记在 src/game/upstream.meta.json 的 buildTimeTransforms 中。",
-    });
-
-    containerEl.createEl("p", {
-      text: "本移植与 Doublespeak Games 无隶属或背书关系。本版本为静音版（不包含原作音效与配乐），界面仅提供简体中文。",
-    });
-
-    new Setting(containerEl)
-      .setName("查看完整来源与改动说明")
-      .setDesc("THIRD_PARTY_NOTICES.md —— 含来源 URL、固定提交、逐条构建期改动、第三方库许可（jQuery 等）")
-      .addButton((button) =>
-        button.setButtonText("打开").onClick(() => {
-          void this.app.workspace.openLinkText("THIRD_PARTY_NOTICES.md", "", true);
-        })
-      )
-      .addButton((button) =>
-        button.setButtonText("MPL-2.0 全文").onClick(() => {
-          void this.app.workspace.openLinkText("LICENSE-ADARKROOM.md", "", true);
-        })
-      );
-  }
-}

@@ -185,6 +185,12 @@
 			"effect": "改为赋值给拼接作用域内的局部 _，使 lang/zh_cn/strings.js 的 _.setTranslation(...) 与全量模块的 _('...') 调用都在隔离作用域内解析。"
 		},
 		{
+			"id": "defer-language-pack",
+			"target": "lang/*/strings.js（构建期扫描所得的全部语言包）",
+			"reason": "本移植默认英文，同时允许切换到随包提供的任一语言。上游的语言包是「加载即生效」——每份文件里唯一的一行 `_.setTranslation({…});` 一执行就整体切换界面语言，没有「登记但不启用」的中间状态。改为把各语言的翻译表**登记**下来，应用时机交给调用方。之所以必须由调用方精确掌握时机：上游有 234 处 `_()` 写在**模块级**的对象/数组字面量里（如 script/room.js 的 `Freezing: { text: _('freezing') }`、script/outside.js 的 `TrapDrops[].message`、script/engine.js 的 perks 表），它们在脚本加载时求值一次即固定，之后再改翻译表也不会变。上游靠「语言包紧跟 translate.js 加载 + 切语言时整页重载」来保证这些常量拿到正确语言；本移植若拖到 boot() 才装表，这些常量就全部停在英文原文（症状：界面骨架是中文，但「火堆 burning.」「房间 freezing.」这类零件是英文）。",
+			"effect": "构建期扫描 src/game/upstream/lang/ 下所有含 strings.js 的目录（由 availableLocales() 得出，增删语言包无需改代码），把每份文件开头的 `_.setTranslation(` 替换成 `__darkroomTranslations[\"<locale>\"] = (`；原文结尾的 `});` 原样保留，整句因此成为一条合法赋值（只替换一处、无需配对处理括号）。这批登记表放在工厂**外面**（工厂 = 生成文件导出的 createDarkroomRuntime），整个进程只解析一次、各实例共享（25 份合计约 1.7MB，放工厂内会随每次重建实例重复 parse）。工厂签名改为 createDarkroomRuntime(locale)，并在**紧随 lib/translate.js 之后**（此刻 `_` 已指向 translate、且尚未有任何含模块级 `_()` 的脚本被求值）立刻应用 locale 对应的表 —— 这一步同时解决了上述「模块级文案不跟随语言」的问题，因为工厂每次执行都会走到那里，重建实例即重新求值。运行时另暴露 setLanguage(name)（命中登记表即 `_.setTranslation(表)`，否则以 `null` 复位 —— 按 lib/translate.js 的实现，此时 `_()` 原样返回 key，即上游英文原文）与 getLanguages()。注：本条**不写在** scripts/build-game.mjs 的 TRANSFORMS 数组里，而是由 build() 内的动态扫描完成 —— 写成静态规则的话，语言列表一变就会因「变换未生效」而报错。"
+		},
+		{
 			"id": "predeclare-implicit-globals",
 			"target": "src/game/generated/adr.runtime.js（拼接 IIFE 的作用域顶部）",
 			"reason": "上游有若干符号依赖浏览器的非严格模式隐式全局，而拼接产物带 ESM 语义即严格模式，给未声明变量赋值会直接抛 ReferenceError。完整名单由 tsc 对生成产物跑 checkJs 得到（Cannot find name）：State、_、Engine、oldIE、Enemies（script/events/executioner.js 第 1 行的 Enemies = window.Enemies ?? {}）、swipeElement（engine.js 的 Engine.init()，boot 阶段即执行）、elem（notifications.js 的 Notify）、craftable 与 good（room.js / fabricator.js 事件处理函数跨作用域引用）、c2 与 c3（setpieces.js 剧情节点），以及上游以 typeof 守卫探测的 define、ga、langs。缺失时的表现是「一打开视图就报 X is not defined」。",
@@ -195,6 +201,12 @@
 			"target": "script/engine.js",
 			"reason": "Engine.init() 在浏览器能力或移动端检测不通过时执行 window.location = 'browserWarning.html' / 'mobileWarning.html'。在 Obsidian 里这会让整个应用窗口跳转到不存在的页面。",
 			"effect": "构建期移除这两处跳转（被排除的两个 html 也不随包分发）。"
+		},
+		{
+			"id": "retarget-github-link",
+			"target": "script/engine.js",
+			"reason": "主菜单里的 github 项在上游指向 A Dark Room 自己的仓库（https://github.com/doublespeakgames/adarkroom）并用 window.open 直接打开。本移植是独立插件，该按钮应指向本项目仓库（与 manifest.json 的 author / authorUrl 同为 ConsonanceTrad）；且 Electron 环境下直接 window.open 未必交给系统浏览器（可能被拦、开成空白窗口或毫无反应），需要由宿主接管。",
+			"effect": "构建期把 `window.open('https://github.com/doublespeakgames/adarkroom')` 整句替换为 `__darkroomHost.openExternal(\"https://github.com/ConsonanceTrad/obsidian-darkroom\")`；目标 URL 在 scripts/build-game.mjs 里以 PROJECT_URL 单点定义。宿主侧实现见 src/main.ts 的 createHost().openExternal（用 window.open(url, \"_blank\")，由 Obsidian 的 Electron 交给系统浏览器）。"
 		},
 		{
 			"id": "redirect-body-selectors",

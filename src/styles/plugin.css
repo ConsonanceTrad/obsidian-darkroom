@@ -6,8 +6,8 @@
  * 上游布局的几点前提，这里都顺着它来：
  *   - div#wrapper 是 margin:auto 的 700px 定宽块，左侧还留了 220px 内边距给通知栏；
  *   - div#content 固定高 700px；
- *   - 底色与文字色：**不自铺**任何底色，全部交给 Obsidian 主题（见下方 .darkroom-container
- *     与 #darkroom-root.darkenLights 两条），这样换任何主题都能自然融合；
+ *   - 底色与文字色：**不自铺**任何底色，全部交给 Obsidian 主题（见下方 .darkroom-container、
+ *     #darkroom-root.darkenLights 与 #notifyGradient 三条），换任何主题都能自然融合；
  *     上游那些**元件**自带的深色值（#stores / .eventPanel / .tooltip 等）保持不动。 */
 
 /* ── 最关键的一条：box-sizing ──────────────────────────────────────────
@@ -36,9 +36,20 @@
  * 不铺自己的底色 —— 上游 ADR 的整页底色来自 body（浏览器默认白 + css/dark.css 的深色），
  * 在这里我们把它交给 Obsidian 主题：浅色主题露出浅色、深色主题露出深色，
  * 带色调的主题也不会被一层写死的白/黑盖住。文字颜色仍随主题走。 */
-.darkroom-container {
+/* 容器同时是 Obsidian 的 .view-content（我们 addClass 到这个元素上）。
+ *
+ * 滚动条就出在这里：Obsidian 自己会给 view-content 设 overflow（且其选择器多半是
+ * `.workspace-leaf-content .view-content` 这类更高特异性的写法），单靠 .darkroom-container
+ * (0,1,0) 压不住。这里同时**提高特异性**（.view-content.darkroom-container = 0,2,0）
+ * 并加 !important —— 双保险，因为这条规则一旦失效，用户看到的就是横纵两条滚动条。 */
+.view-content.darkroom-container {
   height: 100%;
-  overflow: auto;
+  /* 不出滚动条：视图比游戏所需宽度窄时，直接截掉放不下的部分。
+   * 游戏本体是 920px 一体的定宽设计（#wrapper 内容 700 + 左侧通知栏 220），
+   * 收窄会破坏内部布局，故相比滚动条选择截断。 */
+  overflow: hidden !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
   color: #000000;
 }
 
@@ -58,18 +69,91 @@
 
 #darkroom-root {
   position: relative;
-  /* 与 #wrapper 对应：内容 700 + 左侧内边距 220 = 920px。 */
-  width: 920px;
-  margin: 0 auto;
+  /* 撑满视图宽度，而不是写死 920px。
+   *
+   * 920px（= #wrapper 内容 700 + 左侧通知栏 220）是**游戏本体**的宽度，不是容器的宽度。
+   * 原来把它当成 #darkroom-root 的宽度、再 margin:0 auto 居中，于是视图比 920 宽时，
+   * 根容器两侧会留出空白 —— 而 .menu 是 position:absolute 相对根容器定位的，
+   * 结果它贴在「根容器右缘」，距视图右缘还有一百多像素，不像原版那样紧贴右侧。
+   *
+   * 改为撑满视图后，.menu 的 right:10px（上游写法）就落在视图右缘了。
+   * #wrapper 自己是 margin:auto 的 700px 定宽块，在其中自然居中，游戏布局不受影响。 */
+  width: auto;
+  margin: 0;
+}
+
+/* ── 库存栏：保证不被「挤压」到无法渲染 ────────────────────────────────
+ *
+ * 上游的定位链（main.css:56-60、room.css:25-29、room.css:39-46）：
+ *     div#content           { position: relative; overflow: hidden; height: 700px }  ← **没有 width**
+ *     div#storesContainer   { position: absolute; top: 0; right: 0 }
+ *     div#stores            { width: 200px; padding: 5px 10px; border: 1px }         ← 实宽 222
+ * 库存栏是**贴包含块右缘**的绝对定位元素，宽度由内容决定。而 #content 没有固定宽度、
+ * 只撑满 #wrapper 的内容区 —— 一旦那宽度被压到不足 700px，库存栏就会整块落到
+ * #content 的 overflow:hidden 之外被裁掉（表现为「被挤压后彻底不渲染」）。
+ *
+ * #content 的 overflow:hidden 不能改：滑动动画（#locationSlider 横向移动）正靠它
+ * 只露出当前一屏。所以改为**给内容区一个宽度下限** —— 视图再窄也只是让
+ * .darkroom-container 出现滚动条，而不会把库存栏裁没。700px 与 #wrapper 的内容宽度一致。 */
+#darkroom-root div#content {
+  min-width: 700px;
+}
+
+/* 给库存栏自身兜一个下限，避免内部内容把它算得比预期更窄。 */
+#darkroom-root div#storesContainer {
+  min-width: 222px;
+}
+
+/* 左侧通知栏（#notifications，left:0 / width:200px）底部的淡出遮罩。
+ *
+ * 上游用 #notifyGradient 覆盖整栏，做一条从透明渐变到「整页底色」的遮罩，
+ * 让滚上去的旧通知逐渐隐去。问题在于它的**终点色被写死**了：
+ * 浅色版是 white（main.css），深色版是 #272823（dark.css）。
+ * 而我们已经把底色交给 Obsidian 主题 —— 遮罩渐变到的颜色与真实背景不再是同一个色，
+ * 中间那段渐变就显成一道突兀的色带（深色下尤其明显）。
+ *
+ * 这里做两处改动：
+ *   1. 底色取 Obsidian 的主题变量 --background-primary，永远与真实背景一致；
+ *   2. 用 mask-image 表达「上透明、下不透明」，而不是「从透明渐变到某个颜色」——
+ *      mask 只作用于 alpha 通道，不会在中间掺出杂色。
+ * 特异性与上游那条同为 (2,0,1)，靠排在产品末尾取胜。 */
+#darkroom-root div#notifyGradient {
+  background-color: var(--background-primary);
+  background-image: none;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #000 100%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #000 100%);
 }
 
 /* tooltip 的内容是两个浮动块：row_key（float:left; clear:both）与 row_val（float:right）。
    上游只给三类 tooltip 指定了固定宽度（storeRow 160px / workerRow 150px / button 100px），
    其余都是 position:absolute 且无宽度，宽度走 shrink-to-fit —— 而内容全是浮动元素时
    这个收缩很容易算窄，row_val 于是被挤到第二行，提示框看起来就"歪"成上下两块。
-   给个下限兜住；已有 width 的规则不受影响。 */
-#darkroom-root div.tooltip {
+
+   更要紧的是 transform：Obsidian 自己也用 .tooltip 这个类，它的样式里带
+   translateX(-50%) 用于把自己的提示气泡水平居中。游戏里的提示框恰好同名，
+   于是这条漏了进来 —— 实测位移 -55.8px（正是 112px 宽的一半），
+   而 offsetLeft 明明是 2，说明 left: 2px 本身没毛病，偏移全部来自这条 transform。
+   上游靠 left/top 精确对齐宿主，不需要任何 transform。
+
+   这里用 !important 是**刻意的**：同一轮里 style 也把它设成了 inline transform 时，
+   普通声明压不住（inline 优先级更高）。等确认修好、并查清是谁在设之后，
+   可以撤掉 !important 换成更克制的写法。 */
+#darkroom-root div.tooltip,
+#darkroom-root div.tooltip.bottom,
+#darkroom-root div.tooltip.bottom.right,
+#darkroom-root div.tooltip.top,
+#darkroom-root div.tooltip.top.right {
   min-width: 100px;
+  transform: none !important;
+  right: auto !important;
+
+  /* 颜色同样接管。上游把 tooltip 的底色写死（main.css 是 white、dark.css 是 #171813），
+     而**文字色靠继承** —— 在深色主题下就成了「白底浅字」，看着像提示框是空的。
+     改成用 Obsidian 的主题变量，浅色深色都自洽；这里要 !important 是因为
+     dark.css 那条 `#darkroom-root.darkenLights div.tooltip` 的特异性比本条高。 */
+  background-color: var(--background-primary) !important;
+  color: var(--text-normal) !important;
+  border-color: var(--background-modifier-border) !important;
 }
 
 /* 游戏内提示条：上游用 #saveNotify 做"已保存"淡出动画，
@@ -100,30 +184,103 @@
   margin: 0;
   width: auto;
   min-width: 0;
-  max-width: none;
-  height: auto;
+  /* 上限 = 根容器宽度减去左右各 10px（菜单是 right:10px 贴边的）。
+   *
+   * 这一条是让「裁剪」真正发生的前提：绝对定位元素在 width:auto 下宽度由内容决定，
+   * 永远不会「放不下」，也就不会被裁。给了上限，内容超出时才会收缩，
+   * 再配合下面的 flex-end + overflow-x:clip，才轮到左侧项让位。 */
+  max-width: calc(100% - 20px);
+
+  /* 行高固定，消除「被挤压就换行、高度随之变化」。 */
+  height: 20px;
 
   display: flex;
   flex-direction: row;
-  align-items: baseline;
+  /* 不换行：宁可裁掉放不下的项，也不让它变成两行。 */
+  flex-wrap: nowrap;
+  /* 内容靠右排列 —— 于是**溢出发生在左侧**：放不下时先被裁掉的是最左的
+   * github. / sound on.，而右侧的 保存 / language. 始终保留。 */
+  justify-content: flex-end;
+
+  /* 只裁水平、放行垂直。
+   *
+   * 水平方向要裁：这就是「左侧不重要的选项被隐藏」的实现。
+   * 垂直方向**必须**可见：语言下拉是向上展开的（ul 的 bottom:0 + max-height 撑到 600px），
+   * 若连它一起裁掉，语言菜单就再也打不开了 —— 这个坑之前踩过两次
+   * （Obsidian 自己的 .menu 带 overflow:hidden 就曾把整个列表裁没）。
+   * 用 overflow-x/y 分开指定即可两全：水平裁、垂直放行。 */
+  overflow-x: clip;
+  overflow-y: visible;
+
+  /* 顶边对齐 —— 复现上游 float 布局的行为。
+   *
+   * 上游用 float: right 排这一行，float 元素默认就是顶边对齐，各项文字自然齐平。
+   * 改成 flex 后若用 align-items: baseline，语言项会掉下去一截：customSelect 自身没有任何
+   * 行内内容（东西全在绝对定位的 ul 里），没有基线，浏览器便退化为拿它的**底边**当基线。
+   * 用 flex-start 即可让所有项以顶边对齐，与上游观感一致。 */
+  align-items: flex-start;
+}
+
+/* 菜单项各自保持本身宽度，不被 flex 压扁。
+ *
+ * 这是「左侧项让位」而非「全部挤成一团」的前提：没有它，flex 会把每一项都压缩、
+ * 文字叠在一起糊掉；有了它，放不下的项会整体溢出到左侧、被 overflow-x:clip 裁掉。 */
+#darkroom-root .menu > span {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 /* 菜单项从左到右的顺序。
  *
- * 构建期删掉「应用商店 / 分享 / 夜间模式」之后，剩下的 DOM 顺序是：
- *   1 volume(sound on.)   2 hyper(加速)   3 restart(重启)   4 save(保存)   5 github
- * 上游的 float:right 会把它显示成倒序 —— 也就是 github 保存 重启 加速 sound on.
- * （这正是我们先看到的样子）。下面按期望的顺序指定 order：
- *   github  →  sound on.  →  加速  →  重启  →  保存
+ * 构建期删掉「应用商店 / 分享 / 夜间模式」、并启用语言下拉之后，DOM 顺序是：
+ *   1 customSelect(语言)  2 volume(sound on.)  3 hyper(加速)
+ *   4 restart(重启)       5 save(保存)         6 github
+ * 上游的 float:right 会把它显示成倒序（github 保存 重启 加速 sound on. 语言）。
+ * 下面按期望的顺序指定 order：
+ *   github  →  sound on.  →  加速  →  重启  →  保存  →  语言
  *
- * 注意：这几条依赖「删除后只剩 5 项」这个前提。若之后启用语言菜单
- * （engine.js 里 customSelect 排在这些项之前），它会成为 nth-child(1)，
- * 这里要整体后移一位。 */
-#darkroom-root .menu > span:nth-child(1) { order: 2; } /* volume  —— sound on. */
-#darkroom-root .menu > span:nth-child(2) { order: 3; } /* hyper   —— 加速 */
-#darkroom-root .menu > span:nth-child(3) { order: 4; } /* restart —— 重启 */
-#darkroom-root .menu > span:nth-child(4) { order: 5; } /* save    —— 保存 */
-#darkroom-root .menu > span:nth-child(5) { order: 1; } /* github */
+ * 注意：这几条与「菜单里到底有几个 span、分别是谁」强耦合。再增删菜单项时，
+ * 这里必须跟着改 —— 否则 nth-child 会指向错误的元素。 */
+#darkroom-root .menu > span:nth-child(1) { order: 6; } /* customSelect —— 语言下拉 */
+#darkroom-root .menu > span:nth-child(2) { order: 2; } /* volume  —— sound on. */
+#darkroom-root .menu > span:nth-child(3) { order: 3; } /* hyper   —— 加速 */
+#darkroom-root .menu > span:nth-child(4) { order: 4; } /* restart —— 重启 */
+#darkroom-root .menu > span:nth-child(5) { order: 5; } /* save    —— 保存 */
+#darkroom-root .menu > span:nth-child(6) { order: 1; } /* github */
+
+/* 语言切换（customSelect）—— 尽量照上游原样，不自造外观。
+ *
+ * 上游的机制（main.css:96-139）：
+ *     .customSelect            { height: 20px }
+ *     span.customSelectOptions { margin: 0; width: 120px }
+ *     .customSelectOptions > ul { max-height: 20px; width: 120px; overflow: hidden;
+ *                                 transition: max-height 1s;
+ *                                 padding: 0; margin: 0; position: absolute; bottom: 0; right: 0 }
+ *     .customSelectOptions > ul:hover { max-height: 600px }
+ *     .customSelectOptions > ul > li { padding: 0 0 3px 0; height: 20px }
+ *     .customSelectOptions > ul > li:first-child:hover { cursor: default; text-decoration: none }
+ * 通俗说：平时只露一行（列表第一项本身就写作 "language."，它就是入口标签），
+ * 悬停时用 1 秒过渡向上撑开到 600px；**无底色、无边框**，像一层浮在页面上的文字。
+ * 第一项不可点、其余项悬停下划线 —— 这些行为都来自上游，故这里一概不覆盖。
+ *
+ * 本移植只补两处上游在 Obsidian 下缺少的前提，其余原样交给上游样式：
+ *
+ *   1. 定位基准。ul 是 position:absolute 却没有定位祖先（.customSelect 与
+ *      .customSelectOptions 都是 static），会以 .menu 为基准乱跑 —— 折叠态因此什么都
+ *      看不到、展开时还会伸出容器被裁。给 .customSelect 补 position: relative 收回就近。
+ *   2. 悬停热区。折叠态只有 20px 高，鼠标稍偏一点就展不开；放宽为悬停整个语言项。
+ *
+ * （第 3 处前提在上面的 .menu 规则里：Obsidian 自己的 .menu 带 overflow: hidden，
+ *   会把向上展开的列表整块裁掉，已改为 overflow: visible；
+ *   同一条规则里的 align-items: flex-start 则是为了复现上游 float 的顶边对齐。） */
+#darkroom-root .menu .customSelect {
+  position: relative;
+}
+
+#darkroom-root .menu .customSelect:hover .customSelectOptions > ul,
+#darkroom-root .menu .customSelectOptions > ul:hover {
+  max-height: 600px;
+}
 
 #darkroom-root .logo {
   position: absolute;
@@ -154,4 +311,103 @@
  * 于是这两个 -1 会一路穿透到容器底色之下。给它加隔离，把星点关回自己的容器里。 */
 #darkroom-root #starsContainer {
   isolation: isolate;
+}
+
+/* ── 紧凑模式：把信息流交给左侧边栏 ────────────────────────────────────
+ *
+ * 游戏本体是 920px 宽的一整块，宽度由两部分组成：
+ *     #wrapper 内容 700px  +  左侧 220px（专为通知栏留的内边距）  =  920px
+ * 视图比 920px 窄时两侧就会被裁，而这 220px 正是主要来源。
+ *
+ * 紧凑模式（#darkroom-root.compact）把信息流搬到 Obsidian 的左侧边栏，
+ * 本体随即收窄到 700px。
+ *
+ * 库存栏不参与外移：它的位置被 world.js / outside.js / path.js 用 .css() 反复改写，
+ * 且本身是 #roomPanel 内的固定 200px 两列布局，脱离根容器后样式全部失效、收益却为零
+ * （它靠 right:0 贴边，并不占用额外宽度）。 */
+/* 注意这里**不再收窄根容器**。
+ *
+ * 原先 compact 会把 #darkroom-root 从 920px 改成 700px，但那与「容器宽度」是两回事：
+ * 真正需要变窄的是游戏本体（#wrapper 左侧那 220px 内边距），而保持根容器撑满视图宽度
+ * 才能让 .menu 的 right:10px 始终贴在视图右缘。所以这里只负责让出那 220px。 */
+
+/* 左侧那 220px 是专为通知栏留的，通知栏搬走后就该让出来。 */
+#darkroom-root.compact div#wrapper {
+  padding-left: 0;
+}
+
+/* 侧栏里的面板容器。
+ *
+ * 注意这些元素此刻**已不在 #darkroom-root 内** —— 上游那些被作用域化到根容器下的
+ * 样式不再命中，所以下面这些规则必须写成不带 #darkroom-root 前缀的形式。 */
+.darkroom-panel {
+  padding: 8px;
+  /* 与游戏内一致地跟随主题，避免在深色主题下露出白底。 */
+  color: var(--text-normal);
+}
+
+/* 通知栏：撑满侧栏并允许滚动。
+ *
+ * 上游是 position:absolute + top:20px + height:700px（写死的一整屏），在侧栏里必须按
+ * 容器高度重算，否则要么溢出要么塌陷。 */
+.darkroom-panel-notifications {
+  /* 给 #notifyGradient 一个定位基准（它是 absolute 的）。 */
+  position: relative;
+  overflow: hidden;
+}
+
+.darkroom-panel-notifications #notifications {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  width: auto !important;
+  height: 100% !important;   /* 上游写死 700px，这里改为撑满侧栏 */
+  overflow: hidden;          /* 与上游一致：由内部滚动而非溢出 */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 关键：**不要隐藏 #notifyGradient**。
+ *
+ * 上游的 Notifications.clearHidden() 用它计算"可见区下边界"：
+ *     var bottom = $('#notifyGradient').position().top + outerHeight(true);
+ *     $('.notification').each(… if ($(this).position().top > bottom) $(this).remove() …)
+ * 而 printMessage 在淡入动画（500ms）结束后立刻会调一次 clearHidden()。
+ * 于是只要这个渐变层是 display:none（尺寸为 0 ⇒ bottom 恒为 0），每一条通知都会被判定为
+ * "已滚出可见区"并当场删除 —— 表现就是刚出现就消失（一闪）。
+ *
+ * 它的 height:100% 正是"容器底边"，保持上游的几何即可；只把写死的白色/墨绿底改成主题色。 */
+.darkroom-panel-notifications #notifyGradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--background-primary, #ffffff);
+  background-image: none;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #000 100%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #000 100%);
+  /* 渐隐层只作视觉遮罩，不该挡住侧栏的滚动 / 拖拽。 */
+  pointer-events: none;
+}
+
+.darkroom-panel-notifications #notifications .notification {
+  margin-bottom: 10px;   /* 与上游 main.css 一致 */
+}
+
+/* ── 标题栏上的紧凑模式按钮 ────────────────────────────────────────────
+ *
+ * 它被手动插进 .view-header-title-container 的**最前**（标题左侧），而不是走
+ * ItemView.addAction() 的 .view-actions 操作区 —— 这个按钮控制的是视图内容如何排布，
+ * 挨着标题更顺手。clickable-icon 由 Obsidian 提供（悬停高亮、尺寸等），这里只补位置与选中态。 */
+.darkroom-compact-action {
+  margin-right: 6px;
+  align-self: center;
+  /* 与标题同一行时不参与标题的省略号计算 */
+  flex: 0 0 auto;
+}
+
+/* 紧凑模式开启时给个视觉标记（图标本身也会换成 panel-left-close）。 */
+.darkroom-compact-action.is-active {
+  color: var(--text-accent);
 }

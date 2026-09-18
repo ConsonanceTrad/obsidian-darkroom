@@ -41,6 +41,10 @@ A Dark Room 的代码与素材并非本插件作者原创 —— 其版权与许
 9. **存储桥接** — 上游使用的裸 `localStorage`（键 `gameState` / `lang`，并调用 `localStorage.clear()`）被转发到插件持久层，存档落在 vault 内而非 Electron 的浏览器存储。
 10. **CSS 作用域化** — 为全部选择器加 `#darkroom-root` 前缀，并对 `body` / `html` / `::selection` / `@keyframes` 做专门处理，避免与 Obsidian 互相污染。
 11. **移除主菜单中的三项** — 应用商店（引导下载手机 App）、分享（外链社交）、夜间模式（改为跟随 Obsidian 的深/浅色设置）。构建期按块删除对应创建代码；`Engine.getApp` / `Engine.share` / `Engine.turnLightsOff` 函数本身保留（`turnLightsOff` 仍被启动逻辑与主题同步使用）。
+12. **语言包改为「登记待用」，并在工厂启动时应用** — 上游每份 `lang/*/strings.js` 都是「加载即生效」：文件里唯一的一行 `_.setTranslation({…});` 一执行就整体切换界面语言。本移植把它们改写成 `__darkroomTranslations["<locale>"] = ({…});`（只替换开头，结尾的 `});` 原样保留，整句即成为合法赋值）。这批登记表放在生成文件导出的工厂 `createDarkroomRuntime(locale)` **外面**，整个进程只解析一次、各实例共享（25 份合计约 1.7MB，若放工厂内会随每次重建实例重复 parse）。
+
+    **应用时机必须是工厂执行时，而不是 `boot()` 时**。原因：上游有 234 处 `_()` 调用写在**模块级**的对象/数组字面量里 —— 例如 `script/room.js` 的 `Freezing: { value: 0, text: _('freezing') }`、`script/outside.js` 的 `TrapDrops[].message`、`script/engine.js` 的 perks 表。它们在**脚本加载时**求值一次即固定，之后再换翻译表也不会变。上游之所以没这问题，是因为它的语言包紧跟 `lib/translate.js` 加载、加载即生效，且切换语言靠 `location.href` **整页重载**让所有模块常量重新求值；本移植若等到 `boot()` 才装表就太晚了，translate.js 之后的所有模块都已求值完毕，模块级文案会全部停在英文原文（症状：界面骨架是中文，但「火堆 burning.」「房间 freezing.」这类零件是英文）。因此构建期在 `lib/translate.js` 之后、其余脚本之前插入应用 locale 的语句；工厂每次执行都会走到那里，重建实例即重新求值。运行时另暴露 `setLanguage(name)`（命中登记表即 `_.setTranslation(表)`，否则以 `null` 复位 —— 按 `lib/translate.js` 的实现，此时 `_()` 原样返回 key，即上游英文原文）与 `getLanguages()`。构建期由 `availableLocales()` 扫描 `src/game/upstream/lang/` 得出语言清单，增删语言包无需改代码。
+13. **主菜单的 github 项改指本项目，并由宿主打开** — 上游该项指向 A Dark Room 自己的仓库（`https://github.com/doublespeakgames/adarkroom`），且用 `window.open` 直接打开。本移植是独立插件，该按钮应指向本项目仓库（与 `manifest.json` 的 `author` / `authorUrl` 同为 `ConsonanceTrad`）；同时 Electron 环境下直接 `window.open` 未必交给系统浏览器（可能被拦、开成空白窗口或毫无反应），需由宿主接管。构建期把 `window.open('https://github.com/doublespeakgames/adarkroom')` 整句替换为 `__darkroomHost.openExternal("https://github.com/ConsonanceTrad/obsidian-darkroom")`；目标 URL 在 `scripts/build-game.mjs` 里以 `PROJECT_URL` 单点定义。宿主侧实现见 `src/main.ts` 的 `createHost().openExternal`（内部用 `window.open(url, "_blank")`，由 Obsidian 的 Electron 交给系统浏览器）。
 
 ### 1.2 未随包分发的上游文件
 

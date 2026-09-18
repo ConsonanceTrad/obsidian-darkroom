@@ -1,77 +1,76 @@
 # Darkroom
 
-> 把 [**A Dark Room**](https://github.com/doublespeakgames/adarkroom) —— 一款极简文字冒险游戏 —— 搬进 Obsidian 的移植版。
+> [**A Dark Room**](https://github.com/doublespeakgames/adarkroom) — a minimalist text adventure — ported into Obsidian.
 
 ---
 
-## ⚠️ 来源与许可
+## ⚠️ Provenance and license
 
-**本插件不是原创游戏。** 它是一个移植版本，游戏本体由他人创作，请务必知悉以下归属：
+**This plugin is not the original game.** It is a port; the game itself was made by someone else. Please note the attribution below.
 
 | | |
 | --- | --- |
-| 原作 | **A Dark Room — A Minimalist Text Adventure** |
-| 作者 / 版权 | **Michael Townsend / Doublespeak Games** |
-| 上游仓库 | https://github.com/doublespeakgames/adarkroom |
-| 固定提交 | `1fada4620b6c66bd07bf15a3f1eb8223df8bc1d7`（上游 v1.4） |
-| **原作许可** | **Mozilla Public License 2.0 (MPL-2.0)** — 全文见 [`LICENSE-ADARKROOM.md`](./LICENSE-ADARKROOM.md) |
-| 本插件适配层许可 | MIT — 见 [`LICENSE`](./LICENSE) |
-| 完整来源与改动说明 | [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md) |
+| Original work | **A Dark Room — A Minimalist Text Adventure** |
+| Author / copyright | **Michael Townsend / Doublespeak Games** |
+| Upstream repository | https://github.com/doublespeakgames/adarkroom |
+| Pinned commit | `1fada4620b6c66bd07bf15a3f1eb8223df8bc1d7` (upstream v1.4) |
+| **Original license** | **Mozilla Public License 2.0 (MPL-2.0)** — full text in [`LICENSE-ADARKROOM.md`](./LICENSE-ADARKROOM.md) |
+| Adapter layer license | MIT — see [`LICENSE`](./LICENSE) |
+| Full provenance & changes | [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md) |
 
-上游源码**随本仓库完整分发**于 [`src/game/upstream/`](./src/game/upstream)，且逐字节未作修改 —— 这满足 MPL-2.0 §3.2 的源码可得性要求。本插件对原作的全部改动都发生在构建期，只作用于生成物，并逐条登记在 [`src/game/upstream.meta.json`](./src/game/upstream.meta.json) 的 `buildTimeTransforms` 中。
+The upstream source is **redistributed verbatim** in [`src/game/upstream/`](./src/game/upstream) — every file there is byte-for-byte identical to the upstream tarball, which is what satisfies the source-availability requirement of MPL-2.0 §3.2. Every change this plugin makes is applied **at build time**, only to the generated artifacts, and is itemised in the `buildTimeTransforms` field of [`src/game/upstream.meta.json`](./src/game/upstream.meta.json).
 
-本移植与 Doublespeak Games 无隶属或背书关系。"A Dark Room" 的名称与内容归其原作者所有。
+This port is not affiliated with or endorsed by Doublespeak Games. The name and content of "A Dark Room" belong to its original author.
 
 ---
 
-## 这是什么
+## What this is
 
-A Dark Room 从一团将熄的火焰开始。你在黑暗中生起火，有人循光而来；你派他们外出拾荒，建起村庄，然后走进外面那个空无一物的世界。它几乎没有画面 —— 全靠文字、留白与节奏。
+A Dark Room begins with a dying fire. You light it in the dark; someone is drawn to the light. You send them out to scavenge, raise a village, and eventually walk into the empty world outside. It has almost no graphics — just text, whitespace and pacing.
 
-本插件把它做成 Obsidian 内的一个原生视图，而不是内嵌网页：游戏直接渲染在 Obsidian 的 DOM 里，与插件生命周期、存档和命令面板打通，并提供对外 API 供其他插件联动。
+This plugin turns it into a **native Obsidian view** rather than an embedded web page: the game renders directly into Obsidian's DOM, wired into the plugin lifecycle, save persistence and the command palette, and it exposes a public API for other plugins to hook into.
 
-**本移植为静音版**（不包含原作的音效与配乐），界面为**简体中文**。
+**This port is silent** — the original's sound effects and music are not bundled. The interface ships in **English and Simplified Chinese**, and defaults to **English** (Settings → Darkroom → Language).
 
-## 安装
+## Install
 
-手动安装：
+Manual install:
 
-1. 构建产物（或下载发布的压缩包），把 `main.js`、`styles.css`、`manifest.json` 放进
-   `<你的 vault>/.obsidian/plugins/obsidian-darkroom/`
-2. 在 Obsidian 的「设置 → 第三方插件」中启用 **Darkroom**
+1. Build the artifacts (or download a release), then copy `main.js`, `styles.css` and `manifest.json` into
+   `<your vault>/.obsidian/plugins/obsidian-darkroom/`
+2. Enable **Darkroom** under Settings → Community plugins
 
-## 使用
+## Usage
 
-- 命令面板：**打开 A Dark Room**
-- 游戏进度自动保存，存档随 vault 同步
-- 游戏内的「保存」菜单可导出/导入存档代码
+- Command palette: **Open A Dark Room**
+- Progress is saved automatically, and the save file lives in the plugin's own `data.json` — so it syncs along with your vault
+- The in-game **save** menu can export / import save codes
 
-## 开发
+## Development
 
 ```bash
 npm install
-npm run dev        # 监听并增量构建
-npm run build      # 生产构建，产物在 output/
-npm run typecheck  # 类型检查
+npm run dev        # watch + incremental build
+npm run build      # production build, output in output/
+npm run typecheck  # type check
 ```
 
-`npm run build` 会先执行构建期代码生成（解析上游 `index.html`、拼接脚本、作用域化 CSS），
-再交给 esbuild 打包。
+`npm run build` first runs the build-time codegen (parses the upstream `index.html`, concatenates the scripts into an isolated runtime, scopes the upstream CSS), then hands off to esbuild.
 
-### 目录结构
+### Layout
 
 ```
 src/
-  main.ts                 插件入口
+  main.ts                 plugin entry point
   game/
-    upstream/             A Dark Room 上游源码（原样保留，MPL-2.0）
-    upstream.meta.json    来源、搬运/排除清单、构建期改动登记
-    generated/            构建期生成的产物（不入库）
-scripts/                  构建期代码生成脚本
-docs/                     对外 API 文档
+    upstream/             A Dark Room upstream source (kept verbatim, MPL-2.0)
+    upstream.meta.json    provenance, vendored/excluded lists, build-time change log
+    generated/            build-time generated artifacts (not committed)
+scripts/                  build-time codegen scripts
+docs/                     public API documentation
 ```
 
-## 许可
+## License
 
-- 本插件的适配层代码：**MIT**（[`LICENSE`](./LICENSE)）
-- `src/game/upstream/**`（A Dark Room 上游代码及随包第三方库）：**MPL-2.0** 及其他各自声明的许可（[`LICENSE-ADARKROOM.md`](./LICENSE-ADARKROOM.md)、[`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md)）
+- Adapter layer of this plugin: **MIT** ([`LICENSE`](./LICENSE))
+- `src/game/upstream/**` (A Dark Room upstream source and the bundled third-party libraries): **MPL-2.0** plus the respective licenses of each library ([`LICENSE-ADARKROOM.md`](./LICENSE-ADARKROOM.md), [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md))

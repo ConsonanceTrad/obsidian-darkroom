@@ -31,8 +31,70 @@ const GENERATED = path.join(ROOT, "src", "game", "generated");
 /** 上游提交 SHA 由 src/game/upstream/COMMIT 记录 —— 与源码放在一起作为来源凭证。 */
 const COMMIT = fs.readFileSync(path.join(UPSTREAM, "COMMIT"), "utf8").trim().split(/\r?\n/)[0].trim();
 
+/**
+ * 本项目（插件）自己的仓库地址。
+ *
+ * 游戏主菜单里那个 github 按钮原本指向 A Dark Room 自己的仓库；本移植是独立插件，
+ * 那个按钮应当指向本项目 —— 与 manifest.json 的 author / authorUrl（ConsonanceTrad）一致。
+ * 单点定义在此，供下面的 retarget-github-link 变换使用。
+ */
+const PROJECT_URL = "https://github.com/ConsonanceTrad/obsidian-darkroom";
+
 const readUpstream = (rel) => fs.readFileSync(path.join(UPSTREAM, rel), "utf8");
 const readRuntime = (rel) => fs.readFileSync(path.join(RUNTIME, rel), "utf8");
+
+/**
+ * 列出 src/game/upstream/lang/ 下所有带 strings.js 的语言目录。
+ *
+ * 语言包是「可增删」的资源：往这个目录里放一份就叫新增一门语言，不必改构建脚本；
+ * 删掉就少一门。默认英文不依赖任何语言包 —— 没有登记表时 _() 原样返回 key。
+ */
+const availableLocales = () => {
+  const langDir = path.join(UPSTREAM, "lang");
+  if (!fs.existsSync(langDir)) {
+    return [];
+  }
+  return fs
+    .readdirSync(langDir, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && fs.existsSync(path.join(langDir, e.name, "strings.js")))
+    .map((e) => e.name)
+    .sort();
+};
+
+/**
+ * 语言代码 → 显示名，照抄上游 lang/langs.js。
+ *
+ * 只用于生成游戏内语言菜单的条目文字。若某个语言包在这里没有对应条目，
+ * 菜单会退化成直接显示语言代码 —— 仍可用，只是不好看。
+ */
+const LOCALE_NAMES = {
+  cs: "czech",
+  de: "deutsch",
+  el: "ελληνικά",
+  en: "english",
+  eo: "esperanto",
+  es: "español",
+  fr: "français",
+  gl: "galego",
+  id: "bahasa indonesia",
+  it: "italiano",
+  ja: "日本語",
+  ko: "한국어",
+  lt_LT: "lietuvių",
+  lv: "latviešu valoda",
+  nb: "norsk",
+  pl: "polski",
+  pt: "português",
+  pt_br: "português (brasil)",
+  ru: "русский",
+  sv: "svenska",
+  th: "ไทย",
+  tr: "türkçe",
+  uk: "українська",
+  vi: "tiếng việt",
+  zh_cn: "简体中文",
+  zh_tw: "繁體中文",
+};
 
 // ─────────────────────────────────────────────────────────────────────
 // 一、对上游源码的构建期变换
@@ -145,6 +207,24 @@ const TRANSFORMS = [
     expect: /setTimeout\(notifyAboutSound, 3000\);/,
     apply: (src) => src.replace(/setTimeout\(notifyAboutSound, 3000\);/, "/* [darkroom] removed: notifyAboutSound —— 静音版无需提示开启音效 */"),
   },
+  {
+    id: "retarget-github-link",
+    file: "script/engine.js",
+    // 上游的 github 菜单项指向 A Dark Room 自己的仓库，且用 window.open 打开；
+    // 这里两处一起改：
+    //   · URL → 本项目仓库（与 manifest.json 的 author / authorUrl 一致）；
+    //   · 打开方式 → 交给宿主。Electron 下直接 window.open 未必交给系统浏览器
+    //     （可能被拦、开成空窗口或毫无反应），故由 __darkroomHost.openExternal 统一处理。
+    expect: /window\.open\('https:\/\/github\.com\/doublespeakgames\/adarkroom'\)/,
+    apply: (src) =>
+      src.replace(
+        /window\.open\('https:\/\/github\.com\/doublespeakgames\/adarkroom'\)/g,
+        `__darkroomHost.openExternal(${JSON.stringify(PROJECT_URL)})`
+      ),
+  },
+  // 注意：语言包不写在这里 —— 它由 build() 里的 availableLocales() 动态扫描后逐个改写
+  // （见下方「语言包」那段）。写成静态规则的话，语言列表一变（增删语言包）
+  // 就会因「变换未生效」而直接报错。
   retargetBody,
   retargetTitle,
 ];
@@ -176,8 +256,10 @@ function transform(rel, src) {
 /**
  * 顺序取自上游 index.html 的 <script> 标签（下面的 assertOrderMatchesIndexHtml 会强制校验）。
  * 两处例外：
- *   - lang/zh_cn/strings.js 在上游由 index.html 里的 document.write 动态注入，
- *     这里改为静态插入到 translate.js 之后。
+ *   - lang/zh_cn/strings.js 在上游由 index.html 里的 document.write 动态注入。
+ *     本移植**不拼接任何语言包** —— 只要不调用 _.setTranslation，翻译函数 _ 就会原样
+ *     返回传入的 key，界面即为上游的英文原文。这正是「默认语言为英文」的实现方式。
+ *     （该语言包仍随包分发于 src/game/upstream/lang/zh_cn/，留给将来的语言切换用。）
  *   - script/audio.js 不随包分发，其位置由 runtime/audio-stub.js 顶替。
  */
 const MODULES = [
@@ -190,7 +272,6 @@ const MODULES = [
   { file: "lib/jquery.event.swipe.js" },
   { file: "lib/base64.js" },
   { file: "lib/translate.js" },
-  { file: "lang/zh_cn/strings.js" },
 
   { file: "script/Button.js" },
   { file: "script/audioLibrary.js" },
@@ -224,12 +305,12 @@ const NOT_VENDORED = ["lang/langs.js", "script/audio.js", "script/localization.j
 
 /**
  * 上游由内联脚本动态加载、因而不会出现在 <script src> 列表里的文件：
- *   - lib/jquery.min.js      —— 上游优先从 Google CDN 取 jQuery，仅当 window.jQuery 不存在时
- *                               才用 document.write 回退加载本地这份；
- *   - lang/zh_cn/strings.js  —— 语言包由内联脚本按 ?lang= / localStorage.lang 动态注入。
- * 两者都必须随包分发（我们不放 CDN、也不要动态注入），故只从顺序校验中豁免。
+ *   - lib/jquery.min.js —— 上游优先从 Google CDN 取 jQuery，仅当 window.jQuery 不存在时
+ *                          才用 document.write 回退加载本地这份。
+ * 它必须随包分发（我们不放 CDN），故只从顺序校验中豁免。
+ * （lang/zh_cn/strings.js 同属这一类，但本移植不再拼接它 —— 见 MODULES 上方的说明。）
  */
-const DYNAMICALLY_LOADED = ["lib/jquery.min.js", "lang/zh_cn/strings.js"];
+const DYNAMICALLY_LOADED = ["lib/jquery.min.js"];
 
 /** 自检：我们的顺序必须与 index.html 的实际加载顺序一致。 */
 function assertOrderMatchesIndexHtml() {
@@ -273,13 +354,16 @@ const BANNER = `/*
  * 上游各文件被拼接进同一 IIFE 作用域，其顶层 var 因此不会泄漏到 Obsidian 的 window。
  */`;
 
-const PRELUDE = `export default function createDarkroomRuntime() {
+const PRELUDE = `export default function createDarkroomRuntime(locale) {
 "use strict";
 
 /* 本文件导出的是一个**工厂**而非单例：每次调用都得到一套全新的、彼此隔离的游戏实例
  * （各自的 jQuery、State（$SM）、计时器与事件订阅）。
  * 视图重建、存档导入都能因此直接推倒重来，不必去打扫上一局的残留状态 ——
- * 尤其是那串自续的 setTimeout 链，靠 dispose() 一次性清干净。 */
+ * 尤其是那串自续的 setTimeout 链，靠 dispose() 一次性清干净。
+ *
+ * locale 是界面语言的初始值（如 "zh_cn"；英文传 "en" 或不传）。
+ * 它必须在**工厂执行时就应用**，而不是等 boot() —— 原因见下方「应用初始语言」那段。 */
 
 /* 上游原本依赖 index.html 或"隐式全局"的符号，必须在严格模式生效前显式声明。
  * 严格模式下给未声明变量赋值会直接抛 ReferenceError，而拼接产物带 ESM 语义即严格模式。
@@ -314,6 +398,28 @@ var c3;
 var define;
 var ga;
 var langs;
+
+/* 注意：语言表 __darkroomTranslations 不在本函数内，而在工厂**外面** ——
+ * 见本文件「语言包登记表」那段。它在实例之间共享，全局只解析一次。 */
+`;
+
+/**
+ * 语言包登记表：放在工厂**外面**。
+ *
+ * 为什么在外：每份 lang/<locale>/strings.js 是单行 60~70KB 的对象字面量，
+ * 25 份合起来约 1.7MB。若放进工厂体内，每次切语言重建实例都要重新 parse 一遍，
+ * 白白浪费；放在外面则整个进程只解析一次，各实例共享同一批表。
+ *
+ * 为什么「登记」而不「立即应用」：应用时机必须由调用方掌握 ——
+ * 它必须早于任何含模块级 _() 的脚本（见 build() 里 lib/translate.js 之后那段）。
+ */
+const TRANSLATIONS_HEADER = `
+/* ============ 语言包登记表（本移植新增，非上游代码） ============ */
+/* 上游每份 lang/<locale>/strings.js 是「加载即生效」的一行 _.setTranslation({…})；
+ * 构建期已把它改写成 __darkroomTranslations["<locale>"] = ({…}) —— 只登记、不应用。
+ * 应用时机交给调用方：createDarkroomRuntime(locale) 在工厂最早处装表（用于启动），
+ * 或运行中的实例调 setLanguage()（用于游戏内切换）。传 "en" 即回到英文原文。 */
+var __darkroomTranslations = {};
 `;
 
 const EPILOGUE = `
@@ -359,6 +465,29 @@ return {
     Engine.saveGame();
   },
 
+  /**
+   * 切换界面语言。
+   *
+   * 传入已登记的语言代码（构建期扫描 lang/ 目录得出）；找不到对应登记表就回到上游原文。
+   * 注意：已经渲染到界面上的文字不会自动重绘 —— 宿主需要在切换后重建运行时
+   * （设置项那边是 teardown + refresh），新文案才会出现。
+   */
+  setLanguage: function (name) {
+    var table = __darkroomTranslations[name];
+    _.setTranslation(table || null);
+    return !!table;
+  },
+
+  /**
+   * 已随包登记的语言代码列表（不含英文）。
+   *
+   * 英文是上游原文、不需要翻译表，所以不在这里 —— 宿主需自行把它补进语言选单。
+   * 列表由构建期扫描 src/game/upstream/lang/ 得出，增删语言包即自动反映。
+   */
+  getLanguages: function () {
+    return Object.keys(__darkroomTranslations);
+  },
+
   /** 停止本实例的一切计时活动。此后该实例不可再用，应整体丢弃。 */
   dispose: __dispose
 };
@@ -384,12 +513,22 @@ export interface DarkroomHost {
   gameEvent(cat: string, act: string): void;
   /** 游戏导入了一份新存档并已写入存储桥，宿主应据此重建运行时。 */
   importSave(saveData: string): void;
+  /** 游戏内的"重启"：存档已清空，宿主应据此重建运行时（上游此处是 location.reload()）。 */
+  saveCleared(): void;
+  /** 游戏内语言菜单被点击（Engine.switchLanguage 转发）。宿主应换翻译表并重建视图。 */
+  switchLanguage(lang: string): void;
+  /** 游戏想打开一个外部链接（github 菜单项；Electron 下须由宿主交给系统浏览器）。 */
+  openExternal(url: string): void;
 }
 
 export interface DarkroomRuntime {
   setHost(host: Partial<DarkroomHost>): void;
   setRoot(el: HTMLElement): void;
   boot(options?: Record<string, unknown>): unknown;
+  /** 切换界面语言（已随包登记的语言名；无对应表则回落英文原文）。 */
+  setLanguage(name: string): boolean;
+  /** 已随包登记的语言代码列表（不含英文 —— 英文是原文，无需翻译表）。 */
+  getLanguages(): string[];
   /** 立即落盘当前存档。 */
   save(): void;
   /** 停止本实例的一切计时活动；此后该实例不可再用。 */
@@ -401,8 +540,12 @@ export interface DarkroomRuntime {
   getState(): unknown;
 }
 
-/** 工厂：每次调用都得到一套全新的、彼此隔离的游戏实例。 */
-export default function createDarkroomRuntime(): DarkroomRuntime;
+/** 工厂：每次调用都得到一套全新的、彼此隔离的游戏实例。
+ *
+ * @param locale 初始界面语言（如 "zh_cn"；英文传 "en" 或省略）。
+ *   必须在**工厂调用时**传入而非事后 setLanguage —— 上游有 234 处模块级 _() 调用
+ *   在脚本加载时就求值了，晚于此刻的切换不会反映到那些常量上。 */
+export default function createDarkroomRuntime(locale?: string): DarkroomRuntime;
 `;
 
 function build() {
@@ -435,6 +578,71 @@ var jQuery = $;`);
     } else {
       chunks.push(`/* ================= ${mod.file} ================= */\n${src.trimEnd()}`);
     }
+
+    // ── 应用初始语言：必须紧跟 lib/translate.js ────────────────────────────
+    //
+    // 这里是整条语言链路上最关键的一处时序。上游有 234 处 _() 调用写在模块级的
+    // 对象/数组字面量里（如 room.js 的 FireEnum.Burning.text = _('burning')、
+    // outside.js 的 TrapDrops[].message、engine.js 的 perks 表），它们在**脚本加载时**
+    // 求值一次就固定了，之后不再重算。
+    //
+    // 上游之所以没问题，是因为它的 lang/<locale>/strings.js 紧跟 translate.js 加载、
+    // 加载即生效；切换语言则靠 location.href 整页重载，让所有模块常量重新求值。
+    // 本移植把语言包改成「登记待用」后，若等到 boot() 才装表就太晚了 ——
+    // 那时 translate.js 之后的所有模块都已求值完毕，模块级文案全部返回英文原文
+    // （症状：骨架是中文，但「火堆 burning.」「房间 freezing.」这类零件是英文）。
+    //
+    // 所以：在 translate.js 装完（此刻 _ 已指向 translate）之后、其余脚本之前，
+    // 立刻把表装上。工厂每次执行都会走到这里，故重建实例/切换语言都能重新求值。
+    if (mod.file === "lib/translate.js") {
+      chunks.push(`/* [本移植] 应用初始语言 —— 必须早于任何含模块级 _() 的脚本
+ * （理由见构建脚本 scripts/build-game.mjs 中这一段的注释）。 */
+if (locale && __darkroomTranslations[locale]) {
+  _.setTranslation(__darkroomTranslations[locale]);
+}`);
+    }
+  }
+
+  // 语言包：扫描 src/game/upstream/lang/ 下所有 <locale>/strings.js，逐个登记进
+  // __darkroomTranslations[locale]。
+  //
+  // 注意它们**不进 chunks**（那是工厂体内），而是单独成段、拼在工厂**外面**：
+  // 每份是 60~70KB 的对象字面量，25 份约 1.7MB；放工厂内的话每次重建实例都要重新
+  // parse 一遍。放外面则整个进程只解析一次，各实例共享。
+  // 又因为只是赋值语句、与上游脚本的加载顺序无关，新增一门语言无需改代码 ——
+  // 往 lang/ 里丢一份 strings.js 即可。
+  const locales = availableLocales();
+  const translationChunks = [];
+  for (const locale of locales) {
+    const rel = `lang/${locale}/strings.js`;
+    const src = readUpstream(rel).replace(
+      /_\s*\.\s*setTranslation\s*\(/,
+      `__darkroomTranslations[${JSON.stringify(locale)}] = (`
+    );
+    translationChunks.push(`/* ================= ${rel} ================= */\n${src.trimEnd()}`);
+  }
+  if (locales.length) {
+    console.log(`[build-game] 已登记语言包：${locales.join(", ")}`);
+  } else {
+    console.warn("[build-game] 未发现任何语言包 —— 界面只会是英文原文。");
+  }
+
+  // 语言菜单的数据源。
+  //
+  // 上游 engine.js:122 本来就有一段「在右下角菜单里追加语言下拉」的代码，
+  // 整个块被 `if(typeof langs != 'undefined')` 守着 —— 而 langs 由 lang/langs.js 提供，
+  // 本移植没有引入那个文件，于是这段菜单从来不出现。
+  // 这里按「实际随包的语言」生成一份喂给它：显示名照抄上游 langs.js，
+  // 英文不列（英文是原文，切过去即复位），只列真正有翻译表的语言。
+  // 注意 langs 是 PRELUDE 里的函数级变量，故这份数据必须留在工厂内（chunks）。
+  if (locales.length) {
+    const names = {};
+    for (const locale of locales) {
+      if (locale !== "en") {
+        names[locale] = LOCALE_NAMES[locale] ?? locale;
+      }
+    }
+    chunks.push(`/* 语言菜单数据（本移植按实际随包语言生成） */\nlangs = ${JSON.stringify(names)};`);
   }
 
   // 各段之间用 "\n;\n" 而不是空行连接：上游文件原本靠换行 + ASI 分隔，拼接起来之后，
@@ -442,7 +650,19 @@ var jQuery = $;`);
   // 于是 "}\n(function(){…})()" 会被解析成"把对象当函数调用"，抛
   // "{…} is not a function"。（base64.js 正是以 `var Base64 = {…}` 结尾且无分号，
   // 紧随其后的就是 translate.js 的 IIFE。）补一个分号即可彻底规避这类问题。
-  const out = `${BANNER}\n${PRELUDE}\n${chunks.join("\n;\n")}\n${EPILOGUE}`;
+  //
+  // 结构（工厂外 → 工厂内）：
+  //   BANNER
+  //   语言包登记表（__darkroomTranslations，解析一次，实例共享）
+  //   createDarkroomRuntime(locale) { PRELUDE + 各模块 + 应用 locale + EPILOGUE }
+  const out = [
+    BANNER,
+    TRANSLATIONS_HEADER,
+    translationChunks.join("\n;\n"),
+    PRELUDE,
+    chunks.join("\n;\n"),
+    EPILOGUE,
+  ].join("\n");
 
   fs.mkdirSync(GENERATED, { recursive: true });
   fs.writeFileSync(path.join(GENERATED, "adr.runtime.js"), out, "utf8");
