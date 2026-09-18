@@ -1,7 +1,7 @@
 {
 	"id": "darkroom",
 	"name": "Darkroom",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "1.7.2",
 	"description": "Play A Dark Room, a minimalist text adventure, right inside your vault. Ported from the original open-source game by Doublespeak Games.",
 	"author": "ConsonanceTrad",
