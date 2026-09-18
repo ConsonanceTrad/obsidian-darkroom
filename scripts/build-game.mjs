@@ -632,15 +632,19 @@ if (locale && __darkroomTranslations[locale]) {
   // 上游 engine.js:122 本来就有一段「在右下角菜单里追加语言下拉」的代码，
   // 整个块被 `if(typeof langs != 'undefined')` 守着 —— 而 langs 由 lang/langs.js 提供，
   // 本移植没有引入那个文件，于是这段菜单从来不出现。
-  // 这里按「实际随包的语言」生成一份喂给它：显示名照抄上游 langs.js，
-  // 英文不列（英文是原文，切过去即复位），只列真正有翻译表的语言。
+  // 这里按「实际随包的语言」生成一份喂给它：显示名照抄上游 langs.js。
   // 注意 langs 是 PRELUDE 里的函数级变量，故这份数据必须留在工厂内（chunks）。
+  //
+  // **英文必须列进去**，且放在最前。
+  // 英文没有语言包（lang/ 下没有 en 目录，界面原文即英文），但它是「切回原文」的出口 ——
+  // 少了它，玩家切到中文之后就再也回不到英文了。选中 en 时：
+  //   host.switchLanguage("en") → settings.language = "en" → 重建时
+  //   createDarkroomRuntime("en")，而 __darkroomTranslations["en"] 是 undefined，
+  //   于是不装翻译表，_() 原样返回 key —— 正是上游英文原文。
   if (locales.length) {
-    const names = {};
+    const names = { en: LOCALE_NAMES.en };
     for (const locale of locales) {
-      if (locale !== "en") {
-        names[locale] = LOCALE_NAMES[locale] ?? locale;
-      }
+      names[locale] = LOCALE_NAMES[locale] ?? locale;
     }
     chunks.push(`/* 语言菜单数据（本移植按实际随包语言生成） */\nlangs = ${JSON.stringify(names)};`);
   }
