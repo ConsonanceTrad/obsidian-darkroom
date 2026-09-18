@@ -19,13 +19,14 @@ A Dark Room 的代码与素材并非本插件作者原创 —— 其版权与许
 | 许可 | **Mozilla Public License 2.0 (MPL-2.0)** |
 | 许可全文 | 本仓库根目录 [`LICENSE-ADARKROOM.md`](./LICENSE-ADARKROOM.md) |
 
-上游源码随本仓库完整分发于 `src/game/upstream/`，且**逐字节未作修改**（可用上表 tarball 逐个 `cmp` 比对）。
-按 MPL-2.0 §3.2 的要求，源码可得性即由此满足：任何拿到本插件的人都能在同仓库中找到对应源码。
+上游源码随本仓库分发于 `src/game/upstream/`，**逐字节未作修改**（可用上表 tarball 逐个 `cmp` 比对）——**唯一的例外是样式表**：`css/**` 与 `lang/zh_cn/main.css` 已一次性作用域化、固化进根目录 [`styles.css`](./styles.css)，因此不再随本仓库分发。
+按 MPL-2.0 §3.2 的要求，源码可得性由此满足：除样式表外的源码都在同仓库中，样式表的源码可由上表的上游仓库（或其 tarball）取得。
 
 ### 1.1 本插件对上游做的事
 
-所有改动都发生在**构建期**，只作用于生成物（`main.js` / `styles.css` / `src/game/generated/adr.runtime.js`）；
+对**运行时代码**的所有改动都发生在**构建期**，只作用于生成物（`main.js` / `src/game/generated/adr.runtime.js`）；
 `src/game/upstream/` 下的原始文件保持逐字节不变。
+样式的处理则是一次性的历史转换：上游样式表当时被加上作用域前缀后固化为根目录 `styles.css`，此后该文件由本仓库手工维护，构建期不再生成或覆盖它。
 逐条登记见 [`src/game/upstream.meta.json`](./src/game/upstream.meta.json) 的 `buildTimeTransforms` 字段：
 
 1. **不加载任何外部脚本** — 上游 `index.html` 从 Google CDN 取 jQuery，并内嵌 Google Analytics（`gtag.js`，ID `G-606P6J79WH`）。本插件的构建只取 `index.html` 的 `<body>` 骨架与 `<script>` 加载顺序，其中的外链脚本一概忽略。
@@ -39,7 +40,7 @@ A Dark Room 的代码与素材并非本插件作者原创 —— 其版权与许
 7. **移除自启动** — 上游 `engine.js` 结尾的 `$(function() { Engine.init(); });` 被移除，改由插件在视图创建后显式调用，以便控制启动时机与生命周期。
 8. **音频引擎以空实现顶替** — 音频文件不随包分发，构建期注入与上游 API 表面对齐的 no-op `AudioEngine`，使全量调用点原样工作且不产生任何网络或音频请求。
 9. **存储桥接** — 上游使用的裸 `localStorage`（键 `gameState` / `lang`，并调用 `localStorage.clear()`）被转发到插件持久层，存档落在 vault 内而非 Electron 的浏览器存储。
-10. **CSS 作用域化** — 为全部选择器加 `#darkroom-root` 前缀，并对 `body` / `html` / `::selection` / `@keyframes` 做专门处理，避免与 Obsidian 互相污染。
+10. **CSS 作用域化（一次性转换，结果已固化为根目录 `styles.css`）** — 为全部选择器加 `#darkroom-root` 前缀，并对 `body` / `html` / `::selection` / `@keyframes` 做专门处理，避免与 Obsidian 互相污染。该转换**不在构建期运行**：上游样式表已不再随仓库分发，根目录 `styles.css` 现在由本仓库直接维护（见该文件顶部的说明）。
 11. **移除主菜单中的三项** — 应用商店（引导下载手机 App）、分享（外链社交）、夜间模式（改为跟随 Obsidian 的深/浅色设置）。构建期按块删除对应创建代码；`Engine.getApp` / `Engine.share` / `Engine.turnLightsOff` 函数本身保留（`turnLightsOff` 仍被启动逻辑与主题同步使用）。
 12. **语言包改为「登记待用」，并在工厂启动时应用** — 上游每份 `lang/*/strings.js` 都是「加载即生效」：文件里唯一的一行 `_.setTranslation({…});` 一执行就整体切换界面语言。本移植把它们改写成 `__darkroomTranslations["<locale>"] = ({…});`（只替换开头，结尾的 `});` 原样保留，整句即成为合法赋值）。这批登记表放在生成文件导出的工厂 `createDarkroomRuntime(locale)` **外面**，整个进程只解析一次、各实例共享（25 份合计约 1.7MB，若放工厂内会随每次重建实例重复 parse）。
 
@@ -50,6 +51,7 @@ A Dark Room 的代码与素材并非本插件作者原创 —— 其版权与许
 
 | 未引入项 | 原因 |
 | --- | --- |
+| `css/**`、`lang/zh_cn/main.css`（上游样式表） | 已一次性作用域化并固化进根目录 `styles.css`，不再随仓库分发；其源码按 MPL-2.0 §3.2 由上游仓库（见上表）提供。 |
 | `audio/**`（86 个 flac 音效与配乐） | 本移植为**静音**分发。`script/audioLibrary.js`（常量表）保留，因为事件模块以 `AudioLibrary.XXX` 引用它；真正的播放引擎 `script/audio.js` 被排除。 |
 | `img/**`（App Store / Google Play 下载徽章、五种浏览器图标、品牌 logo） | **游戏运行时不使用任何位图。** 上游仅有的引用都位于 `index.html` 的 `<head>` 元数据（`og:image`、`image_src`），以及只给 README 和 `browserWarning.html` 用。不引入同时也避免了 Apple / Google 徽章与各浏览器 logo 的商标使用问题。 |
 | `lang/adarkroom.pot`、`tools/po2js.py`、`browserWarning.html`、`mobileWarning.html`、`doc/**`、`favicon.ico`、`script/dropbox.js`、`script/localization.js`、`lib/icu.js`、上游开发文件 | 与运行无关，详见 `src/game/upstream.meta.json` 的 `excludedReasons`。 |
@@ -117,7 +119,7 @@ MIT 允许再分发，条件是在副本中保留版权声明与许可声明 —
 
 ## 3. 简体中文翻译
 
-`src/game/upstream/lang/zh_cn/` 下的 `strings.po`、`strings.js`、`main.css` 取自上游同名目录，许可同样为 **MPL-2.0**，版权归 Doublespeak Games 及其翻译贡献者，未作修改。
+`src/game/upstream/lang/zh_cn/` 下的 `strings.po` 与 `strings.js` 取自上游同名目录，许可同样为 **MPL-2.0**，版权归 Doublespeak Games 及其翻译贡献者，未作修改（该目录的 `main.css` 与其余 `lang/*/main.css` 一样，已并入根目录 `styles.css`，不再随仓库分发）。
 
 其中 `strings.js` 是上游用 `tools/po2js.py` 从 `strings.po` 生成的产物；本插件把 `.po` 源文件也一并保留，便于日后直接校订中文文案。
 
@@ -129,8 +131,13 @@ MIT 允许再分发，条件是在副本中保留版权声明与许可声明 —
 即本移植的适配层（Obsidian 视图、存档桥、对外 API、构建脚本）—— 为本插件作者原创，
 采用 **MIT** 许可，见本仓库根目录 [`LICENSE`](./LICENSE)。
 
+根目录 [`styles.css`](./styles.css) 是**混合文件**，两部分要分开看待：
+
+- 主体（各 `============ upstream … ============` 小节）是上游样式表的作用域化结果，仍受 **MPL-2.0** 覆盖；
+- 末尾「本插件自身的样式」一节为本插件原创，属 **MIT**。
+
 > 注意：这些原创文件**不会改变** `src/game/upstream/**` 中各文件的许可状态。
-> MPL-2.0 是**逐文件**的 copyleft：它只约束被修改过的 MPL 覆盖文件，因此本插件可以把原创的适配层置于 MIT 之下，而 `src/game/upstream/**` 仍完整地属于 MPL-2.0。
+> MPL-2.0 是**逐文件**的 copyleft：它只约束被修改过的 MPL 覆盖文件，因此本插件可以把原创的适配层置于 MIT 之下，而 `src/game/upstream/**` 与 `styles.css` 中的上游部分仍属于 MPL-2.0。
 
 ---
 

@@ -4,7 +4,10 @@ node_modules/
 output/
 main.js
 *.js.map
-src/game/generated/
+# 生成物不入库；唯一的例外是运行时类型声明 —— 它随仓库分发，
+# 好让审核 / CI 在一份没跑过构建的 clone 上也能解析 src/game/generated/adr.runtime.js 的类型。
+src/game/generated/*
+!src/game/generated/adr.runtime.d.ts
 .tmp/
 adarkroom-main.zip
 data.json

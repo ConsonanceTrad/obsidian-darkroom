@@ -18,9 +18,16 @@
 | Adapter layer license | MIT — see [`LICENSE`](./LICENSE) |
 | Full provenance & changes | [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md) |
 
-The upstream source is **redistributed verbatim** in [`src/game/upstream/`](./src/game/upstream) — every file there is byte-for-byte identical to the upstream tarball, which is what satisfies the source-availability requirement of MPL-2.0 §3.2. Every change this plugin makes is applied **at build time**, only to the generated artifacts, and is itemised in the `buildTimeTransforms` field of [`src/game/upstream.meta.json`](./src/game/upstream.meta.json).
+The upstream source is **redistributed in [`src/game/upstream/`](./src/game/upstream) — every file there is byte-for-byte identical to the upstream tarball, except the stylesheets**: `css/**` and `lang/zh_cn/main.css` were scoped once and folded into the root [`styles.css`](./styles.css), which is now maintained by hand and is no longer generated at build time. Source availability under MPL-2.0 §3.2 is satisfied by the vendored tree plus the upstream repository linked above. Every change this plugin makes to the *runtime code* is applied **at build time**, only to the generated artifacts, and is itemised in the `buildTimeTransforms` field of [`src/game/upstream.meta.json`](./src/game/upstream.meta.json).
 
 This port is not affiliated with or endorsed by Doublespeak Games. The name and content of "A Dark Room" belong to its original author.
+
+---
+
+## Effects
+![d00077ab1eff45ed7ee43063d16fd90a.png](img/d00077ab1eff45ed7ee43063d16fd90a.png)
+![570de986192145a29544ae8b89adf7a2.png](img/570de986192145a29544ae8b89adf7a2.png)
+![215042eb-0002-4d67-831d-7c5fc964d407.png](img/215042eb-0002-4d67-831d-7c5fc964d407.png)
 
 ---
 
@@ -70,11 +77,12 @@ npm run build      # production build, output in output/
 npm run typecheck  # type check
 ```
 
-`npm run build` first runs the build-time codegen (parses the upstream `index.html`, concatenates the scripts into an isolated runtime, scopes the upstream CSS), then hands off to esbuild.
+`npm run build` first runs the build-time codegen (parses the upstream `index.html` and concatenates the scripts into an isolated runtime), then hands off to esbuild. The stylesheets are **not** generated: the root `styles.css` is the single, hand-maintained stylesheet.
 
 ### Layout
 
 ```
+styles.css                the plugin's only stylesheet (hand-maintained; see its header)
 src/
   main.ts                 plugin entry point, commands, runtime lifecycle
   settings.ts             persisted settings (language, compact mode)
@@ -82,10 +90,8 @@ src/
   view/
     DarkroomView.ts       the game view (main editor area) + title-bar button
     DarkroomPanelView.ts  sidebar view that hosts panels moved out of the game
-  styles/
-    plugin.css            styles owned by this adapter layer
   game/
-    upstream/             A Dark Room upstream source (kept verbatim, MPL-2.0)
+    upstream/             A Dark Room upstream source (MPL-2.0; stylesheets excluded)
     upstream.meta.json    provenance, vendored/excluded lists, build-time change log
     runtime/              adapter code injected into the generated runtime
     generated/            build-time generated artifacts (not committed)
@@ -95,4 +101,5 @@ scripts/                  build-time codegen scripts
 ## License
 
 - Adapter layer of this plugin: **MIT** ([`LICENSE`](./LICENSE))
+- [`styles.css`](./styles.css): **mixed** — its main body is the scoped upstream stylesheet (**MPL-2.0**), while the trailing "本插件自身的样式" section is ours (**MIT**)
 - `src/game/upstream/**` (A Dark Room upstream source and the bundled third-party libraries): **MPL-2.0** plus the respective licenses of each library ([`LICENSE-ADARKROOM.md`](./LICENSE-ADARKROOM.md), [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md))

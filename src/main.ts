@@ -16,17 +16,19 @@ import { DEFAULT_SETTINGS, type DarkroomSettings } from "./settings";
  * 去掉的只有两样：指向 doublespeakgames.com 的品牌 logo 链接（游戏本体不用），
  * 以及 head 里的 SEO/analytics（那些本来就不进视图）。
  * #saveNotify 的文案对应上游 `_("saved.")`，这里直接写死中文 —— 本移植只有简体中文。
+ *
+ * 用 createEl 逐层构造而不是 HTML 字符串：直接给 innerHTML 赋值是 Obsidian 审核
+ * 明令禁止的写法；这样构造还顺带让「已保存」走 text 选项，不经过任何 HTML 解析。
  */
-const SKELETON = `<div id="wrapper">
-	<div id="saveNotify">已保存</div>
-	<div id="content">
-		<div id="outerSlider">
-			<div id="main">
-				<div id="header"></div>
-			</div>
-		</div>
-	</div>
-</div>`;
+function buildSkeleton(): HTMLElement {
+  const wrapper = createEl("div", { attr: { id: "wrapper" } });
+  wrapper.createEl("div", { attr: { id: "saveNotify" }, text: "已保存" });
+  const content = wrapper.createEl("div", { attr: { id: "content" } });
+  const outerSlider = content.createEl("div", { attr: { id: "outerSlider" } });
+  const main = outerSlider.createEl("div", { attr: { id: "main" } });
+  main.createEl("div", { attr: { id: "header" } });
+  return wrapper;
+}
 
 interface PersistedData {
   store?: Record<string, string>;
@@ -60,7 +62,7 @@ export default class DarkroomPlugin extends Plugin {
 
     this.addCommand({
       id: "open",
-      name: "打开 A Dark Room",
+      name: "打开游戏",
       callback: () => {
         void this.openGame();
       },
@@ -92,9 +94,14 @@ export default class DarkroomPlugin extends Plugin {
   }
 
   onunload(): void {
-    // 先收侧栏：它会触发各 DarkroomPanelView.onClose，把库存/信息流还回游戏树，
-    // 否则这些元素会跟着被 detach 的 leaf 一起丢掉。
-    this.app.workspace.detachLeavesOfType(DARKROOM_PANEL_VIEW_TYPE);
+    // 把外移到侧栏的元素归还游戏树，再拆运行时。
+    //
+    // 这里**不能**用 workspace.detachLeavesOfType()：Obsidian 的审核规则禁止在 onunload
+    // 里 detach leaf —— 那会在插件重新加载时把用户手动挪过位置的侧栏重置回默认位置。
+    // 归还靠 releaseAllPanels()（teardownRuntime 内部也会调一次，这里前置是为了在
+    // 运行时已不存在时仍然把元素放回）：元素回到 #wrapper 之后，插件禁用时 leaf 被
+    // 回收也不会波及它们。
+    this.releaseAllPanels();
     this.teardownRuntime();
     void this.persistNow();
   }
@@ -139,9 +146,8 @@ export default class DarkroomPlugin extends Plugin {
       return this.root;
     }
 
-    const root = document.createElement("div");
-    root.id = "darkroom-root";
-    root.innerHTML = SKELETON;
+    const root = createEl("div", { attr: { id: "darkroom-root" } });
+    root.appendChild(buildSkeleton());
     // 紧凑模式记得生效：连同它的根容器类一起恢复，否则重启后布局会回到 920px。
     root.classList.toggle("compact", this.settings.compact);
 

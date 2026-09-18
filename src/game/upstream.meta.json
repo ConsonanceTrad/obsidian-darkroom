@@ -38,15 +38,6 @@
 		"script/events/setpieces.js",
 		"script/events/marketing.js",
 		"script/events/executioner.js",
-		"css/main.css",
-		"css/room.css",
-		"css/outside.css",
-		"css/path.css",
-		"css/world.css",
-		"css/ship.css",
-		"css/space.css",
-		"css/fabricator.css",
-		"css/dark.css",
 		"lib/jquery.min.js",
 		"lib/jquery.color-2.1.2.min.js",
 		"lib/jquery.event.move.js",
@@ -54,11 +45,10 @@
 		"lib/base64.js",
 		"lib/translate.js",
 		"lang/zh_cn/strings.js",
-		"lang/zh_cn/main.css",
 		"lang/zh_cn/strings.po"
 	],
 
-	"vendoredNote": "以上文件一律原样保留、逐字节未修改（可用 cmp 与上游 tarball 比对）。上游的 MPL-2.0 版权头与第三方库的许可头均保留在各自文件内。lang/zh_cn/strings.po 是 zh_cn 翻译的源码形式（strings.js 由上游 tools/po2js.py 从它生成），保留它是为了日后可以直接校订中文文案。",
+	"vendoredNote": "以上文件一律原样保留、逐字节未修改（可用 cmp 与上游 tarball 比对）。上游的 MPL-2.0 版权头与第三方库的许可头均保留在各自文件内。lang/zh_cn/strings.po 是 zh_cn 翻译的源码形式（strings.js 由上游 tools/po2js.py 从它生成），保留它是为了日后可以直接校订中文文案。\n\n样式表（css/**、lang/zh_cn/main.css）不随本仓库分发：它们已一次性作用域化、固化进根目录 styles.css（见该文件顶部的说明），此后由本仓库手工维护。样式表的源码按 MPL-2.0 §3.2 由上游仓库提供：https://github.com/doublespeakgames/adarkroom（commit 见 source.commit）。",
 
 	"imageAudit": {
 		"checkedAt": "2026-09-18",
@@ -240,11 +230,11 @@
 		},
 		{
 			"id": "scope-css",
-			"target": "css/**, lang/zh_cn/main.css",
+			"target": "css/**, lang/zh_cn/main.css（一次性转换，结果已固化为根目录 styles.css）",
 			"reason": "上游样式大量使用 id 选择器（#room、#outside、#buildings、#world 等）与通用规则，直接注入会污染 Obsidian 界面，反之亦然。",
-			"effect": "构建期为每条选择器加上游戏根容器前缀（#darkroom-root）后输出到插件 styles.css。需特别处理三类：① body / html 选择器改写到根容器本身 —— 含 body.noMask 这种，而 space.js 正好会给根容器加 noMask 类，太空过场的黑白反转因此得以保留；② ::selection / ::-moz-selection 这类无选择器规则改写为后代选择器；③ @keyframes exploding / spin 重命名加前缀，避免与 Obsidian 或其它插件的同名动画互相覆盖。"
+			"effect": "每条选择器加上游戏根容器前缀（#darkroom-root）后写入插件根目录 styles.css；该文件如今是唯一的手工维护样式表，构建期不再生成或覆盖它。转换时特别处理了三类：① body / html 选择器改写到根容器本身 —— 含 body.noMask 这种，而 space.js 正好会给根容器加 noMask 类，太空过场的黑白反转因此得以保留；② ::selection / ::-moz-selection 这类无选择器规则改写为后代选择器；③ @keyframes exploding / spin 重命名加前缀，避免与 Obsidian 或其它插件的同名动画互相覆盖。"
 		}
 	],
 
-	"modificationsSummary": "本插件对 A Dark Room 的全部改动都发生在构建时，作用于生成物 src/game/generated/adr.runtime.js 与 styles.css；src/game/upstream/ 下的原始文件保持逐字节不变，且随本仓库一同分发，对应 MPL-2.0 §3.2 的源码可得性要求。上述每个改动都在 buildTimeTransforms 中逐条登记。"
+	"modificationsSummary": "本插件对 A Dark Room 的运行时代码改动发生在构建时，作用于生成物 src/game/generated/adr.runtime.js；src/game/upstream/ 下除样式表以外的原始文件保持逐字节不变，且随本仓库一同分发，对应 MPL-2.0 §3.2 的源码可得性要求。样式表（css/**、lang/zh_cn/main.css）已一次性作用域化并固化为根目录 styles.css，其源码由上游仓库提供（见 vendoredNote）。上述每个改动都在 buildTimeTransforms 中逐条登记。"
 }

@@ -533,10 +533,26 @@ export interface DarkroomRuntime {
   save(): void;
   /** 停止本实例的一切计时活动；此后该实例不可再用。 */
   dispose(): void;
-  Engine: any;
-  $SM: any;
-  $: any;
-  modules: Record<string, any>;
+  /** 上游 Engine 对象 —— 本移植只用到开关灯（主题同步）与语言切换。 */
+  Engine: {
+    isLightsOff?: () => boolean;
+    turnLightsOff?: () => void;
+    switchLanguage?: (lang: string) => void;
+    [key: string]: unknown;
+  };
+  /** 上游 StateManager（路径语法见 api/DarkroomAPI.ts 的 getState 注释）。 */
+  $SM: {
+    get(path: string, requestZero?: boolean): unknown;
+    set(path: string, value: unknown): void;
+    add(path: string, delta: number): void;
+    [key: string]: unknown;
+  };
+  /** 上游事件总线：Dispatch(name).subscribe(cb)。 */
+  $: {
+    Dispatch(name: string): { subscribe(callback: (payload?: unknown) => void): unknown };
+    [key: string]: unknown;
+  };
+  modules: Record<string, unknown>;
   getState(): unknown;
 }
 

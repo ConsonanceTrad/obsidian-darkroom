@@ -1,14 +1,15 @@
 /*
- * 自动生成，请勿手工编辑 —— 生成器：scripts/scope-css.mjs
+ * 本插件的唯一样式表 —— 手工维护（MIT），构建期不再生成或覆盖本文件。
  *
- * 本文件包含 A Dark Room 的样式表，采用 Mozilla Public License 2.0，
+ * 文件主体是 A Dark Room 的样式表，采用 Mozilla Public License 2.0，
  * 版权归 Michael Townsend / Doublespeak Games 所有。
  *   上游仓库：https://github.com/doublespeakgames/adarkroom
  *   许可全文：LICENSE-ADARKROOM.md
  *   来源与改动：THIRD_PARTY_NOTICES.md
  *
- * 上游全部选择器都已在构建期被加上 #darkroom-root 前缀（夜间模式用
+ * 上游全部选择器都已加上 #darkroom-root 前缀（夜间模式用
  * #darkroom-root.darkenLights），因此不会泄漏到 Obsidian 界面。
+ * 本插件自身的样式在本文件末尾的「本插件自身的样式」一节。
  */
 
 /* ============ upstream css/main.css ============ */
@@ -241,16 +242,12 @@
 	left: 0px;
 	height: 100%;
 	width: 100%;
+	/* 上游这里另用两条 background: linear-gradient(...) 铺一层「透明 → 白」的底，
+	   并附一条 IE 的 filter: alpha(...) 兜底。本插件的样式（见本文件末尾
+	   #darkroom-root div#notifyGradient 那条）已把它改成主题色 + mask 渐隐，
+	   background-image 被显式置为 none —— 这三条声明因此始终不生效，
+	   删掉它们以免「重复 background」告警。 */
 	background-color: white;
-	background: -webkit-linear-gradient(
-		rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%
-	);
-	background: linear-gradient(
-		rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%
-	);
-	filter: alpha(
-		Opacity=0, FinishOpacity=100, Style=1, StartX=0, StartY=0, FinishX=0, FinishY=500
-	);
 }
 
 /* Button */
@@ -433,8 +430,10 @@
 	display: block;
 }
 
+/* 上游原文带 !important。同文件内 `*:hover > div.tooltip { display: block }`（第 429 行）
+   在前、本条在后，两者特异性相同（1,2,1），按书写顺序本条即胜 —— !important 是多余的，去掉。 */
 #darkroom-root div.tooltip:hover {
-	display: none !important;
+	display: none;
 }
 
 #darkroom-root .disabled:hover > div.tooltip, #darkroom-root .button.free:hover > div.tooltip {
@@ -1194,10 +1193,9 @@
 }
 
 #darkroom-root.darkenLights div#notifyGradient {
+	/* 与浅色版同理：渐变与 IE 滤镜都已被本插件末尾那条规则
+	   （background-image: none + mask 渐隐）取代，删掉以免「重复 background」告警。 */
 	background-color: #272823;
-	background: -webkit-linear-gradient( rgba(39, 40, 35, 0) 0%, rgba(39, 40, 35, 1) 100% );
-	background: linear-gradient( rgba(39, 40, 35, 0) 0%, rgba(39, 40, 35, 1) 100% );
-	filter: alpha( Opacity=0, FinishOpacity=100, Style=1, StartX=0, StartY=0, FinishX=0, FinishY=500 );
 }
 
 #darkroom-root.darkenLights div#saveNotify {
