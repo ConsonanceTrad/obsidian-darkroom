@@ -155,9 +155,9 @@ function __dispose() {
   __disposed = true;
   __timers.forEach(function (type, id) {
     if (type === "interval") {
-      clearInterval(id);
+      window.clearInterval(id);
     } else {
-      clearTimeout(id);
+      window.clearTimeout(id);
     }
   });
   __timers.clear();

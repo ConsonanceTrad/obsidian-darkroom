@@ -17,16 +17,18 @@ import { DEFAULT_SETTINGS, type DarkroomSettings } from "./settings";
  * 以及 head 里的 SEO/analytics（那些本来就不进视图）。
  * #saveNotify 的文案对应上游 `_("saved.")`，这里直接写死中文 —— 本移植只有简体中文。
  *
- * 用 createEl 逐层构造而不是 HTML 字符串：直接给 innerHTML 赋值是 Obsidian 审核
- * 明令禁止的写法；这样构造还顺带让「已保存」走 text 选项，不经过任何 HTML 解析。
+ * 用 createDiv 逐层构造而不是 HTML 字符串：直接给 innerHTML 赋值是 Obsidian 审核
+ * 明令禁止的写法；审核的 prefer-create-el 进一步要求创建 div 时用专用 helper
+ * `createDiv`，而不是泛化的 `createEl("div", …)`。这样构造还顺带让「已保存」
+ * 走 text 选项，不经过任何 HTML 解析。
  */
 function buildSkeleton(): HTMLElement {
-  const wrapper = createEl("div", { attr: { id: "wrapper" } });
-  wrapper.createEl("div", { attr: { id: "saveNotify" }, text: "已保存" });
-  const content = wrapper.createEl("div", { attr: { id: "content" } });
-  const outerSlider = content.createEl("div", { attr: { id: "outerSlider" } });
-  const main = outerSlider.createEl("div", { attr: { id: "main" } });
-  main.createEl("div", { attr: { id: "header" } });
+  const wrapper = createDiv({ attr: { id: "wrapper" } });
+  wrapper.createDiv({ attr: { id: "saveNotify" }, text: "已保存" });
+  const content = wrapper.createDiv({ attr: { id: "content" } });
+  const outerSlider = content.createDiv({ attr: { id: "outerSlider" } });
+  const main = outerSlider.createDiv({ attr: { id: "main" } });
+  main.createDiv({ attr: { id: "header" } });
   return wrapper;
 }
 
@@ -56,6 +58,8 @@ export default class DarkroomPlugin extends Plugin {
     this.registerView(DARKROOM_VIEW_TYPE, (leaf) => new DarkroomView(leaf, this));
     this.registerView(DARKROOM_PANEL_VIEW_TYPE, (leaf) => new DarkroomPanelView(leaf, this));
 
+    // "A Dark Room" 是游戏的正式名（上游产品名），不是普通 UI 句子，
+    // 刻意保持原样 —— 该规则在这两个文件里由 eslint.config.mjs 关掉。
     this.addRibbonIcon("flame", "A Dark Room", () => {
       void this.openGame();
     });
@@ -146,7 +150,7 @@ export default class DarkroomPlugin extends Plugin {
       return this.root;
     }
 
-    const root = createEl("div", { attr: { id: "darkroom-root" } });
+    const root = createDiv({ attr: { id: "darkroom-root" } });
     root.appendChild(buildSkeleton());
     // 紧凑模式记得生效：连同它的根容器类一起恢复，否则重启后布局会回到 920px。
     root.classList.toggle("compact", this.settings.compact);

@@ -19,6 +19,8 @@ export class DarkroomView extends ItemView {
   }
 
   getDisplayText(): string {
+    // 视图标题用游戏正式名（上游产品名），刻意保持原样 —— 该规则在这两个文件里
+    // 由 eslint.config.mjs 关掉。
     return "A Dark Room";
   }
 

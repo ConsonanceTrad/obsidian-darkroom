@@ -640,8 +640,12 @@
 	margin-left: -50%;
 }
 
-#darkroom-root #lootButtons {
-	padding-bottom: 0px !important;
+/* 上游原文带 !important：`#lootButtons` 是 `#description` 的直接子 div（events.js:922-932 的
+   `$('#description', …)` + `lootButtons.appendTo(desc)`），因此会被上面那条
+   `#description > div { padding-bottom: 20px }` 命中 —— 那条特异性 (1,1,1) 高于本条 (1,1,0)，
+   所以这里改为把选择器提到 (1,2,0)，效果等同 !important 而不必用它。 */
+#darkroom-root #description #lootButtons {
+	padding-bottom: 0px;
 	margin: 20px 0 5px 0;
 	position: relative;
 }
@@ -1022,6 +1026,13 @@
 	}
 }
 
+/* 这两条**保留** !important（本轮已查证）：`#spacePanel` 在 space.js:32-34 里同时
+   addClass('location') 并 appendTo('#outerSlider')，于是被两条上游规则命中 ——
+     · `#darkroom-root div.location`（(1,1,1)：float:left、position:relative）
+     · `#darkroom-root div#outerSlider > div`（(2,0,2)：同上）
+   本条选择器只有 (1,1,0)，低于两者。要撤掉 !important 就得写成
+   `#darkroom-root div#outerSlider > div#spacePanel`（(3,0,2)）这种与 DOM 结构强耦合的形式；
+   一旦失配，太空过场会整屏错位 —— 收益不抵风险，故维持原样。 */
 #darkroom-root #spacePanel {
 	float: none !important;
 	position: absolute !important;
@@ -1176,6 +1187,10 @@
 }
 
 /* ============ upstream lang/zh_cn/main.css ============ */
+/* 这三条**保留** !important（本轮已查证）：Button.js:44 会执行 `el.css('width', options.width)`，
+   而上下游多处构造按钮时确实传了内联宽度 —— room.js / outside.js / path.js 传 '80px'、
+   ship.js 传 '100px'、fabricator.js 传 '150px'。中文按钮文字更宽，需要把宽度统一提到
+   100 / 115 / 122px；内联声明优先于普通声明，只有 !important 压得住它们，故维持原样。 */
 #darkroom-root .button {width: 100px !important;}
 
 #darkroom-root #outsidePanel .button {width: 115px !important;}
@@ -1425,7 +1440,12 @@
  * 滚动条就出在这里：Obsidian 自己会给 view-content 设 overflow（且其选择器多半是
  * `.workspace-leaf-content .view-content` 这类更高特异性的写法），单靠 .darkroom-container
  * (0,1,0) 压不住。这里同时**提高特异性**（.view-content.darkroom-container = 0,2,0）
- * 并加 !important —— 双保险，因为这条规则一旦失效，用户看到的就是横纵两条滚动条。 */
+ * 并加 !important —— 双保险，因为这条规则一旦失效，用户看到的就是横纵两条滚动条。
+ *
+ * 这三条 !important **保留**（本轮把审核告警逐条过了一遍后的决定）：对手是 Obsidian
+ * 自身注入的样式，它的特异性、是否带 !important 都不在本仓库里，既无法静态确证也无从
+ * 本地复现；而失配的代价是用户眼前立刻多出两条滚动条 —— 撤掉它换来的 3 条 lint 告警
+ * 明显不抵这个风险。 */
 .view-content.darkroom-container {
   height: 100%;
   /* 不出滚动条：视图比游戏所需宽度窄时，直接截掉放不下的部分。
@@ -1519,9 +1539,10 @@
    而 offsetLeft 明明是 2，说明 left: 2px 本身没毛病，偏移全部来自这条 transform。
    上游靠 left/top 精确对齐宿主，不需要任何 transform。
 
-   这里用 !important 是**刻意的**：同一轮里 style 也把它设成了 inline transform 时，
-   普通声明压不住（inline 优先级更高）。等确认修好、并查清是谁在设之后，
-   可以撤掉 !important 换成更克制的写法。 */
+   transform / right 这两条**保留** !important：本轮全仓检索过上游没有用 .css() 设它们
+   （css('transform') 无命中），但历史实测里确有同名的 inline 声明出现过 —— 在查清是谁
+   在设之前，撤掉会冒「提示框又开始偏移」的风险。
+   配色的三条则不再需要 !important：改为在下面补一条与对手同特异性的深色规则。 */
 #darkroom-root div.tooltip,
 #darkroom-root div.tooltip.bottom,
 #darkroom-root div.tooltip.bottom.right,
@@ -1533,11 +1554,19 @@
 
   /* 颜色同样接管。上游把 tooltip 的底色写死（main.css 是 white、dark.css 是 #171813），
      而**文字色靠继承** —— 在深色主题下就成了「白底浅字」，看着像提示框是空的。
-     改成用 Obsidian 的主题变量，浅色深色都自洽；这里要 !important 是因为
-     dark.css 那条 `#darkroom-root.darkenLights div.tooltip` 的特异性比本条高。 */
-  background-color: var(--background-primary) !important;
-  color: var(--text-normal) !important;
-  border-color: var(--background-modifier-border) !important;
+     改成用 Obsidian 的主题变量，浅色深色都自洽。 */
+  background-color: var(--background-primary);
+  color: var(--text-normal);
+  border-color: var(--background-modifier-border);
+}
+
+/* dark.css 里 `#darkroom-root.darkenLights div.tooltip` 的特异性 (1,2,1) 高于上面那条 (1,1,1)，
+   原本只能靠 !important 压过它。这里改为把同样的主题变量声明再写成一条与它同特异性的规则 ——
+   本条位于文件更后面，按书写顺序即胜，于是不必再用 !important。 */
+#darkroom-root.darkenLights div.tooltip {
+  background-color: var(--background-primary);
+  color: var(--text-normal);
+  border-color: var(--background-modifier-border);
 }
 
 /* 游戏内提示条：上游用 #saveNotify 做"已保存"淡出动画，
@@ -1663,7 +1692,16 @@
 
 #darkroom-root .menu .customSelect:hover .customSelectOptions > ul,
 #darkroom-root .menu .customSelectOptions > ul:hover {
-  max-height: 600px;
+  /* 展开高度：把上游的 600px 上调到 700px，确保语言列表完整显示。
+   *
+   * 为什么需要调：本移植的语言列表比上游多一项（多了 english —— 它是「切回原文」的
+   * 出口，必须列进去），共 26 项。每项 li 高 20px + padding-bottom 3px = 23px，
+   * 26 × 23 = 598px，正好贴到上游那个 600px 的上限，最后一项于是被压掉。
+   *
+   * 只改这一个数值 —— 不引入滚动、不改裁剪方式、不动折叠态
+   * （折叠态走的是上游的 max-height: 20px + overflow: hidden，与本条无关）。
+   * 700px 留了约 100px 余量，足够容纳 26 项。 */
+  max-height: 700px;
 }
 
 #darkroom-root .logo {
@@ -1733,7 +1771,13 @@
 /* 通知栏：撑满侧栏并允许滚动。
  *
  * 上游是 position:absolute + top:20px + height:700px（写死的一整屏），在侧栏里必须按
- * 容器高度重算，否则要么溢出要么塌陷。 */
+ * 容器高度重算，否则要么溢出要么塌陷。
+ *
+ * 下面这五条 !important **保留**（本轮把审核告警逐条过了一遍后的决定）：本条只在侧栏
+ * 生效，而上游那条 `#darkroom-root div#notifications` 此时并不命中（元素已搬出根容器）；
+ * 本轮也核实了上游 JS 没有给它设内联定位（只有 #notifyGradient 被 space.js 设过 inline
+ * background）。也就是说对手是谁、特异性多高，无法在本仓库内确证 —— 而失配的代价是
+ * 信息流在侧栏里位置/高度错乱，故维持原样。 */
 .darkroom-panel-notifications {
   /* 给 #notifyGradient 一个定位基准（它是 absolute 的）。 */
   position: relative;
