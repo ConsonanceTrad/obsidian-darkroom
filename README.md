@@ -1,6 +1,10 @@
 # Darkroom
 
 > Bring [**A Dark Room**](https://github.com/doublespeakgames/adarkroom) — a minimalist text adventure — ported into Obsidian.
+> 
+>Only the implementation method was changed without adjusting the game: The native view of Obsidian was used for re-construction, and some display adaptations were made specifically for Obsidian.
+
+> If any errors occur, please submit an Issue to me [HERE](https://github.com/ConsonanceTrad/obsidian-darkroom/issues).
 
 ---
 
